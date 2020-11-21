@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\dist",
+    "\\dist\\electron",
+    "\\src",
+    "\\src\\renderer",
+    "\\src\\renderer\\components",
+    "\\src\\renderer\\components\\Home",
+    "\\src\\renderer\\components\\Login",
+    "\\src\\renderer\\util"
+  ],
+  "SelectedNode": "\\src\\renderer\\components\\Home\\image",
+  "PreviewInSolutionExplorer": false
+}
