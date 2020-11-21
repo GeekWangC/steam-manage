@@ -27,14 +27,14 @@
                 </div>
                 <button type="button" id="login" class="styled-button" @click="handleLogin">
                     <span class="styled-button__real-text-holder">
-                        <span class="styled-button__real-text">SubmitÍõ</span>
+                        <span class="styled-button__real-text">Submit</span>
                         <span class="styled-button__moving-block face">
                             <span class="styled-button__text-holder">
-                                <span class="styled-button__text">SubmiÍõt</span>
+                                <span class="styled-button__text">Submit</span>
                             </span>
                         </span><span class="styled-button__moving-block back">
                             <span class="styled-button__text-holder">
-                                <span class="styled-button__text">SubmitÍõ</span>
+                                <span class="styled-button__text">Submit</span>
                             </span>
                         </span>
                     </span>

@@ -1,7 +1,6 @@
 <template>
-    <div>
+    <div class="home-contain">
         <left>df</left>
-        <button @click="handleBack">bufdsufbsduibf</button>
     </div>
 </template>
 
@@ -20,9 +19,7 @@
             Left
         },
         methods: {
-            handleBack() {
-                this.$router.go(-1);
-            },
+            
             handleLogin(e) {
                 this.$http.post(
                     loginUser,
@@ -48,7 +45,9 @@
   }
 </script>
 <style>
-    @import url('../../assets/css/style.css');
+    .home-contain{
+        width:100%;height:100%;
+    }
 
     
 </style>

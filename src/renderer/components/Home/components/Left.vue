@@ -6,13 +6,15 @@
         </header>
         <span class="left-menu-title">System Menu</span>
         <ul>
-            <li>
-                <img class="menu-img" src="../image/icon-account.png" />
-                ’À∫≈π‹¿Ì
+            <li v-for="(item,idx) in menuList" 
+                :key="idx"
+                @click='handleMenuClick(idx)'
+                :class="[selIdx === idx ? 'sel' :'']">
+                <img class="menu-img" :src="item.src" />
+                {{item.title}}
             </li>
-            <li>”√ªßπ‹¿Ì</li>
         </ul>
-        <footer>ÕÀ≥ˆ</footer>
+        <footer @click='handleBack'>ÈÄÄÂá∫</footer>
     </div>
 </template>
 
@@ -22,12 +24,29 @@
         data() {
             return {
                 userName: '',
-                password: ''
+                password: '',
+                selIdx:0,
+                menuList:[
+                    {
+                        src:require('../image/icon-account.png'),
+                        title:'Ë¥¶Âè∑ÁÆ°ÁêÜ'
+                    },
+                    {
+                        src:require('../image/icon-user management@2x.png'),
+                        title:'Áî®Êà∑ÁÆ°ÁêÜ'
+                    }
+                ]
             }
         },
         components: {},
         methods: {
-            
+            handleMenuClick:function(idx){
+                this.selIdx = idx;
+            }, 
+            handleBack() {
+                this.$router.replace('/');
+                sessionStorage.removeItem('token');
+            },
         },
     }
 </script>
@@ -35,6 +54,9 @@
     .left-menu{
         width:300px;height:100%;
         display:flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;-moz-flex-direction: column;
+        -ms-flex-direction: column;-o-flex-direction: column;flex-direction: column;
         padding-top:46px;
     }
     header {
@@ -64,8 +86,9 @@
         width: 100%;
         height: 54px;
         background: #fff;
-        border-left:3px solid #364FF0;
         padding-left:42px;
+        cursor:pointer;
+        border-left: 3px solid #fff;
     }
     .menu-img {
         width:20px;height:20px;margin-right:20px;
