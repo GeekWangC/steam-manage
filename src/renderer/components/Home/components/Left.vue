@@ -8,7 +8,7 @@
         <ul>
             <li v-for="(item,idx) in menuList" 
                 :key="idx"
-                @click='handleMenuClick(idx)'
+                @click='handleMenuClick(idx,item.menu)'
                 :class="[selIdx === idx ? 'sel' :'']">
                 <img class="menu-img" :src="item.src" />
                 {{item.title}}
@@ -29,19 +29,22 @@
                 menuList:[
                     {
                         src:require('../image/icon-account.png'),
-                        title:'账号管理'
+                        title:'账号管理',
+                        menu:'account'
                     },
                     {
                         src:require('../image/icon-user management@2x.png'),
-                        title:'用户管理'
+                        title:'用户管理',
+                        menu:'user'
                     }
                 ]
             }
         },
         components: {},
         methods: {
-            handleMenuClick:function(idx){
-                this.selIdx = idx;
+            handleMenuClick:function(idx,menu){
+              this.selIdx = idx;
+              this.$emit('toggleMenu',menu);
             }, 
             handleBack() {
                 this.$router.replace('/');

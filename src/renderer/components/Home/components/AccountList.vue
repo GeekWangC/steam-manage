@@ -1,0 +1,288 @@
+<template>
+	<div>
+		<a-table 
+			key="accountList"
+			:pagination="pagination"
+	    :loading="loading"
+			:columns="columns" :data-source="data">
+	    <span slot="action" slot-scope="text, record">
+	      <a-button type="primary" @click="handleRechargeToggle(record.accountId)">充值</a-button>
+	      <a-button type="primary" @click="handleRecharge(record.accountId)">充值记录</a-button>
+	      <a-button type="primary" @click="handleShareAccount">共享账号</a-button>
+	      <a-button type="primary" @click="handleRecharge(record.accountId)">消费记录</a-button>
+	    </span>
+		</a-table>
+		<a-modal v-model="visible" title="充值" :footer="null">
+	    <a-form :form="rechargeForm" @submit="handleRecharge">
+		    <a-form-item label="礼品卡代码">
+		      <a-input
+		        v-decorator="['walletCode', { rules: [{ required: true, message: '请输入礼品卡代码' }] }]"
+		      />
+		    </a-form-item>
+		    <a-button type="primary" html-type="submit">
+	        提交
+	      </a-button>
+	    </a-form>
+	  </a-modal>
+	</div>
+</template>
+
+<script>
+	import { Table,Button,Modal,Form,Input } from 'ant-design-vue';
+	import { getRelations,recharge } from '../../../util/api';
+	const columns = [
+	  {
+	  	title: '编号',
+	    dataIndex: 'name111',
+	    key: 'name111',
+	    slots: { title: 'customTitle' },
+	    scopedSlots: { customRender: 'name' },
+	  },
+	  {
+	    title: '备注',
+	    dataIndex: 'age',
+	    key: 'age',
+	  },
+	  {
+	    title: 'steam账号',
+	    dataIndex: 'name',
+	    key: 'name',
+	  },
+	  {
+	    title: 'steam密码',
+	    key: 'password',
+	    dataIndex: 'password',
+	    scopedSlots: { customRender: 'tags' },
+	  },
+	  {
+	    title: '备用码',
+	    key: 'action11',
+	    scopedSlots: { customRender: 'action11' },
+	  },
+	  {
+	    title: '账号地区',
+	    key: 'zone',
+	  },
+	  {
+	    title: '需充值金额',
+	    key: 'recharge',
+	  },
+	  {
+	    title: '已充值金额参考',
+	    key: 'rechargeTotal',
+	  },
+	  {
+	    title: '充值前余额',
+	    key: 'remainder',
+	  },
+	  {
+	    title: '状态',
+	    key: 'status',
+	  },
+	  {
+	    title: '操作人',
+	    key: 'handler',
+	  },
+	  {
+	    title: '信息',
+	    key: 'actionmsg',
+	  },
+	  {
+	    title: '创建时间',
+	    key: 'createDate',
+	  },
+	  {
+	    title: '操作',
+	    key: 'action',
+	    scopedSlots: { customRender: 'action' },
+	  },
+	];
+
+// const data = [
+//   {
+//     key: '1',
+//     name: 'John Brown',
+//     age: 32,
+//     address: 'New York No. 1 Lake Park',
+//     tags: ['nice', 'developer'],
+//   },
+//   {
+//     key: '2',
+//     name: 'Jim Green',
+//     age: 42,
+//     address: 'London No. 1 Lake Park',
+//     tags: ['loser'],
+//   },
+//   {
+//     key: '3',
+//     name: 'Joe Black',
+//     age: 32,
+//     address: 'Sidney No. 1 Lake Park',
+//     tags: ['cool', 'teacher'],
+//   },
+// ];
+  export default {
+    name: 'contextList',
+    data() {
+      return {
+        data:[],
+				pagination: {},
+				loading: false,
+				columns,
+				currentPage:0,
+				pageSize:10,
+				rechargeForm: this.$form.createForm(this, { name: 'rechargeForm' }),
+				visible:false,
+				accountId:'',
+      }
+    },
+    components: {
+    	ATable:Table,
+    	AButton:Button,
+    	AModal:Modal,
+    	AForm:Form,
+    	AInput:Input,
+    	AFormItem:Form.Item,
+    },
+    mounted(){
+    	this.getRelations();
+    },
+    methods: {
+    	getRelations(e){
+    		const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.get(
+    			getRelations,
+    			{
+    				params:{
+	    				pageSize:self.pageSize,
+	    				currentPage:self.currentPage
+	    			},
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.data = res.data.data;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+        });
+    	},
+    	handleRechargeToggle(accountId){
+    		this.accountId = accountId;
+    		this.visible = !this.visible;
+    	},
+    	handleRecharge(e){
+
+    		// 事件绑定 - 充值
+    		e.preventDefault();
+    		const self = this;
+	      this.rechargeForm.validateFields((err, values) => {
+	        if (!err) {
+	        	values.accountId = self.accountId;
+	          this.interRecharge(values);
+	        }
+	      });
+    	},
+    	interRecharge(params){
+
+    		// 接口请求-充值
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.post(
+    			recharge,
+    			JSON.stringify(params),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.data = res.data.data;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+        });
+    	},
+    	handleShareAccount(e){
+
+    		// 事件绑定 - 共享账号
+    		e.preventDefault();
+    		this.$emit('toggleMenu','share');
+    	},
+
+    },
+  }
+</script>
+<style scoped>
+    .left-menu{
+        width:300px;height:100%;
+        display:flex;
+        -webkit-box-orient: vertical;
+        -webkit-flex-direction: column;-moz-flex-direction: column;
+        -ms-flex-direction: column;-o-flex-direction: column;flex-direction: column;
+        padding-top:46px;
+    }
+    header {
+        padding-left: 40px;
+        font-size: 28px;
+        font-family: Helvetica-Bold, Helvetica;
+        font-weight: bold;
+        color: #183B56;
+    }
+    .header-img {
+        width:46px;height:46px;
+        margin-right:20px;
+    }
+    .left-menu-title {
+        padding:34px 0 37px 40px;
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #6C6C6C;
+    }
+    ul{
+        flex:1;
+    }
+    li {
+        display:flex;
+        align-items:center;
+        width: 100%;
+        height: 54px;
+        background: #fff;
+        padding-left:42px;
+        cursor:pointer;
+        border-left: 3px solid #fff;
+    }
+    .menu-img {
+        width:20px;height:20px;margin-right:20px;
+    }
+
+    .sel {
+        background: #F4F3FA;
+        border-left: 3px solid #364FF0;
+    }
+    footer {
+        padding-left:40px;
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #0D0E10;
+        line-height: 22px;
+    }
+</style>

@@ -2,6 +2,24 @@ var domain = 'http://124.71.179.72:8088';
 export var createUser = domain + '/create/user';
 export var loginUser = domain + '/login';
 
+// 用户账号信息列表
+export var getRelations = domain + '/api/get/account/relations';
+// 录入账号
+export var addAcconut = domain + '/api/create/account';
+// 设置账号使用者上限
+export var setLimit = domain + '/api/change/limit';
+// 充值
+export var recharge = domain + '/api/recharge';
+
+// 用户共享账号信息展示
+export let getShareAccount = domain + '/api/get/account/users'
+
+// 管理员查看用户信息列表
+export let getUserList = domain + '/api/get/user/list';
+// 验证邮箱
+export let checkEmail = domain + '/api/verify/emailCode';
+
+
 var createUser123123 = function () {
 
     $.ajax({

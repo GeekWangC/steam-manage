@@ -1,48 +1,47 @@
 <template>
-    <main>
-        <button @click="handleCreate">189346782964978321469823</button>
-        <form class="form">
-            <div class="form__cover"></div>
-            <div class="form__loader">
-                <div class="spinner active">
-                    <svg class="spinner__circular" viewBox="25 25 50 50">
-                        <circle class="spinner__path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"></circle>
-                    </svg>
-                </div>
+  <main class="login-contian">
+    <form class="form">
+        <div class="form__cover"></div>
+        <div class="form__loader">
+            <div class="spinner active">
+                <svg class="spinner__circular" viewBox="25 25 50 50">
+                    <circle class="spinner__path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"></circle>
+                </svg>
             </div>
-            <div class="form__content">
-                <h1>Authorization</h1>
-                <div class="styled-input">
-                    <input id="username" type="text" class="styled-input__input" name="nickname" v-model="userName">
-                    <div class="styled-input__placeholder">
-                        <span class="styled-input__placeholder-text">Username</span>
-                    </div>
-                    <div class="styled-input__circle"></div>
-                </div><div class="styled-input">
-                    <input id="password" type="text" class="styled-input__input" v-model="password">
-                    <div class="styled-input__placeholder">
-                        <span class="styled-input__placeholder-text">Password</span>
-                    </div>
-                    <div class="styled-input__circle"></div>
+        </div>
+        <div class="form__content">
+            <h1>Authorization</h1>
+            <div class="styled-input">
+                <input id="username" type="text" class="styled-input__input" name="nickname" v-model="userName">
+                <div class="styled-input__placeholder">
+                    <span class="styled-input__placeholder-text">Username</span>
                 </div>
-                <button type="button" id="login" class="styled-button" @click="handleLogin">
-                    <span class="styled-button__real-text-holder">
-                        <span class="styled-button__real-text">Submit</span>
-                        <span class="styled-button__moving-block face">
-                            <span class="styled-button__text-holder">
-                                <span class="styled-button__text">Submit</span>
-                            </span>
-                        </span><span class="styled-button__moving-block back">
-                            <span class="styled-button__text-holder">
-                                <span class="styled-button__text">Submit</span>
-                            </span>
+                <div class="styled-input__circle"></div>
+            </div><div class="styled-input">
+                <input id="password" type="text" class="styled-input__input" v-model="password">
+                <div class="styled-input__placeholder">
+                    <span class="styled-input__placeholder-text">Password</span>
+                </div>
+                <div class="styled-input__circle"></div>
+            </div>
+            <button type="button" id="login" class="styled-button" @click="handleLogin">
+                <span class="styled-button__real-text-holder">
+                    <span class="styled-button__real-text">Submit</span>
+                    <span class="styled-button__moving-block face">
+                        <span class="styled-button__text-holder">
+                            <span class="styled-button__text">Submit</span>
+                        </span>
+                    </span><span class="styled-button__moving-block back">
+                        <span class="styled-button__text-holder">
+                            <span class="styled-button__text">Submit</span>
                         </span>
                     </span>
-                </button>
-            </div>
+                </span>
+            </button>
+        </div>
 
-        </form>
-    </main>
+    </form>
+  </main>
 </template>
 
 <script>
@@ -71,7 +70,8 @@
 
                 )
                 .then(function (response) {
-                    sessionStorage.setItem('token', response.data);
+                    const res = response.data;
+                    sessionStorage.setItem('token', res.data);
                     self.$router.push('/home');
                     //window.location.href = './home.html'
                 })
@@ -83,8 +83,8 @@
                 this.$http.post(
                     createUser,
                     JSON.stringify({
-                        userName: 'test1',
-                        password: 'test1'
+                        userName: 'test2',
+                        password: 'test2'
                     }),
                     {
                         headers: { 'Content-Type': "application/json", dataType: "json", }
@@ -103,7 +103,7 @@
             }
         },
         mounted() {
-
+            // this.handleCreate();
             var placeholders = document.querySelectorAll('.styled-input__placeholder-text'),
                 inputs = document.querySelectorAll('.styled-input__input');
 
@@ -171,7 +171,18 @@
   }
 </script>
 <style>
-    @import url('../../assets/css/style.css');
-
+  @import url('../../assets/css/style.css');
+  main{
+    display: -webkit-box; 
+    display: -moz-box;    
+    display: -ms-flexbox; 
+    display: -webkit-flex; 
+    display: flex;         
+    -webkit-box-align: center;-webkit-align-items: center;-moz-align-items: center;
+    -ms-align-items: center;-o-align-items: center;align-items: center;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;-moz-justify-content: center;
+    -ms-justify-content: center;-o-justify-content: center;justify-content: center;
+  }
     
 </style>
