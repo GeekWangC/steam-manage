@@ -5,10 +5,10 @@
 	    :loading="loading"
 			:columns="columns" :data-source="data">
 			<span slot="shareOpen" slot-scope="text, record">
-	      <a-switch default-checked @change="handleChangeStatus(record.accountId)" />
+	      <a-switch default-checked @change="handleChangeStatus($event,record.id,!record.status)" />
 	    </span>
 	    <span slot="action" slot-scope="text, record">
-	      <a-button type="primary" @click="handleCheckEmail(record.accountId)">删除</a-button>
+	      <a-button type="primary" @click="interDeleteShareSwitch(record.id)">删除</a-button>
 	    </span>
 		</a-table>
 		<a-modal v-model="visible" title="充值" :footer="null">
@@ -28,7 +28,7 @@
 
 <script>
 	import { Table,Button,Modal,Form,Input,Switch } from 'ant-design-vue';
-	import { getShareAccount,checkEmail } from '../../../util/api';
+	import { getShareAccount,checkEmail,deleteShareAccount,setShareStatus } from '../../../util/api';
 
 			// "canHandle": true,
    //    "id": 0,
@@ -45,10 +45,15 @@
 	    scopedSlots: { customRender: 'name' },
 	  },
 	  {
-	    title: '需充值金额',
-	    dataIndex: 'rechargeDemand',
-	    key: 'rechargeDemand',
+	    title: '共享者平台ID',
+	    dataIndex: 'userId',
+	    key: 'userId',
 	  },
+	  // {
+	  //   title: '需充值金额',
+	  //   dataIndex: 'rechargeDemand',
+	  //   key: 'rechargeDemand',
+	  // },
 	  {
 	    title: '共享开关',
 	    key: 'shareOpen',
@@ -111,14 +116,14 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.data = res.data.data;
+    			self.data = res.data;
     		})
     		.catch(function (error) {
           console.log(error);
         });
     	},
-    	handleChangeStatus(e){
-    		e.preventDefault();
+    	handleChangeStatus(e,id,status){
+    		this.interSetShareSwitch(id,status)
     	},
 
 
@@ -162,9 +167,62 @@
     		.catch(function (error) {
           console.log(error);
         });
-    	}
+    	},
+    	interSetShareSwitch(id,status){
+
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.post(
+    			setShareStatus,
+    			JSON.stringify({
+    				id,status
+    			}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+        });
+    	},
+    	interDeleteShareSwitch(id){
+
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.post(
+    			deleteShareAccount+'?id='+id,
+    			JSON.stringify({}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+        });
+    	},
 
     },
+
   }
 </script>
 <style scoped>

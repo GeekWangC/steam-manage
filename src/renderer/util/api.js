@@ -14,6 +14,18 @@ export var recharge = domain + '/api/recharge';
 // 用户共享账号信息展示
 export let getShareAccount = domain + '/api/get/account/users'
 
+// 关闭或开启共享
+export let setShareStatus= domain + '/api/change/relation/status'
+// 删除用户共享
+export let deleteShareAccount= domain + '/api/disable/relation'
+
+// 充值记录
+export let getRechargeRecords = domain + '/get/account/rechargeRecords'
+
+// 消费记录
+export let getConsumeRecords = domain + '/get/account/consumeRecords'
+
+
 // 管理员查看用户信息列表
 export let getUserList = domain + '/api/get/user/list';
 // 验证邮箱

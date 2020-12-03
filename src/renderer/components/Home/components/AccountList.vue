@@ -7,9 +7,9 @@
 			:columns="columns" :data-source="data">
 	    <span slot="action" slot-scope="text, record">
 	      <a-button type="primary" @click="handleRechargeToggle(record.accountId)">充值</a-button>
-	      <a-button type="primary" @click="handleRecharge(record.accountId)">充值记录</a-button>
+	      <a-button type="primary" @click="handleRechargeRecords">充值记录</a-button>
 	      <a-button type="primary" @click="handleShareAccount">共享账号</a-button>
-	      <a-button type="primary" @click="handleRecharge(record.accountId)">消费记录</a-button>
+	      <a-button type="primary" @click="handleConsumeRecords">消费记录</a-button>
 	    </span>
 		</a-table>
 		<a-modal v-model="visible" title="充值" :footer="null">
@@ -29,7 +29,7 @@
 
 <script>
 	import { Table,Button,Modal,Form,Input } from 'ant-design-vue';
-	import { getRelations,recharge } from '../../../util/api';
+	import { getRelations,recharge,getRechargeRecords,getConsumeRecords } from '../../../util/api';
 	const columns = [
 	  {
 	  	title: '编号',
@@ -40,8 +40,8 @@
 	  },
 	  {
 	    title: '备注',
-	    dataIndex: 'age',
-	    key: 'age',
+	    dataIndex: 'remark',
+	    key: 'remark',
 	  },
 	  {
 	    title: 'steam账号',
@@ -82,10 +82,6 @@
 	  {
 	    title: '操作人',
 	    key: 'handler',
-	  },
-	  {
-	    title: '信息',
-	    key: 'actionmsg',
 	  },
 	  {
 	    title: '创建时间',
@@ -219,8 +215,17 @@
           console.log(error);
         });
     	},
+    	handleRechargeRecords(e){
+    		// 事件绑定 - 充值记录
+    		e.preventDefault();
+    		this.$emit('toggleMenu','rechargeRecords');
+    	},
+    	handleConsumeRecords(e){
+    		// 事件绑定 - 消费记录
+    		e.preventDefault();
+    		this.$emit('toggleMenu','consumeRecords');
+    	},
     	handleShareAccount(e){
-
     		// 事件绑定 - 共享账号
     		e.preventDefault();
     		this.$emit('toggleMenu','share');

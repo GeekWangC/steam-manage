@@ -1,7 +1,7 @@
 <template>
     <div class="left-menu">
         <header>
-            <img class="header-img" src="" />
+            <img class="header-img" src="../image/home.png"/>
             STEAM
         </header>
         <span class="left-menu-title">System Menu</span>
@@ -14,7 +14,9 @@
                 {{item.title}}
             </li>
         </ul>
-        <footer @click='handleBack'>退出</footer>
+        <footer @click='handleBack' class="back-home">
+          <img class="header-img" src="../image/icon-tc@2x.png" height="44" width="38"/>
+          退出</footer>
     </div>
 </template>
 
@@ -61,6 +63,7 @@
         -webkit-flex-direction: column;-moz-flex-direction: column;
         -ms-flex-direction: column;-o-flex-direction: column;flex-direction: column;
         padding-top:46px;
+        padding-bottom:67px;
     }
     header {
         padding-left: 40px;
@@ -102,11 +105,19 @@
         border-left: 3px solid #364FF0;
     }
     footer {
-        padding-left:40px;
-        font-size: 13px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #0D0E10;
-        line-height: 22px;
+      padding-left:40px;
+      font-size: 13px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #0D0E10;
+      line-height: 22px;
+      display: -webkit-box;display: -moz-box;       
+      display: -ms-flexbox;display: -webkit-flex;display: flex;
+      -webkit-box-align: center;-webkit-align-items: center;-moz-align-items: center;
+      -ms-align-items: center;-o-align-items: center;align-items: center;
+    }
+    .back-home img{
+      width:19px;height:22px;
+      margin-right:22px;
     }
 </style>

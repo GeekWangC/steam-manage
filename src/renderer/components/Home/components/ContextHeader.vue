@@ -1,8 +1,14 @@
 <template>
 	<div class="context-header">
-		<span>{{title}}</span>
+		<div class="context-menu">
+			<span 
+				v-for="(item,index) in title.split('/')" 
+				@click="handleSetRouter($event,item)"
+				key="index">{{item}}/</span>	
+		</div>
+		
 		<div class="context-util">
-			<a-select default-value="lucy" style="width: 120px" @change="handleChange">
+			<a-select v-show="1==2" default-value="lucy" style="width: 120px" @change="handleChange">
 	      <a-select-option value="jack">
 	        Jack
 	      </a-select-option>
@@ -69,6 +75,13 @@
         name:'',
         password:'',
         limit:'',
+        menuTitle:{
+          '账号管理':'account',
+          '用户管理':'user',
+          '账号管理/共享账号':'share',
+          '账号管理/消费记录':'consumeRecords',
+          '账号管理/充值记录':'rechargeRecords',
+        }
       }
     },
     components: {
@@ -83,6 +96,11 @@
     mounted(){
     },
     methods: {
+    	handleSetRouter(e,router){
+    		// 事件绑定 - 切换路由
+    		e.preventDefault();
+    		this.$emit('toggleMenu',this.menuTitle[router]);
+    	},
     	handleChange(){
 
     	},
@@ -180,5 +198,8 @@
  	justify-content: space-between;
   width:100%;
   padding:0 0 19px;
+}
+.context-menu{
+	cursor:pointer;
 }
 </style>

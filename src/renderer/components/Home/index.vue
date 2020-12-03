@@ -3,10 +3,12 @@
     <left @toggleMenu="toggleMenu">df</left>
     <div class="context">
       <context-user></context-user>
-      <context-header :title="menuTitle[menu]"></context-header>
+      <context-header :title="menuTitle[menu]" @toggleMenu="toggleMenu"></context-header>
       <account-list @toggleMenu="toggleMenu" v-show="menu == 'account'"></account-list>
       <user-list v-show="menu == 'user'"></user-list>
       <share-account-list v-show="menu == 'share'"></share-account-list>
+      <recharge-records v-show="menu == 'rechargeRecords'"></recharge-records>
+      <consume-records v-show="menu == 'consumeRecords'"></consume-records>
     </div>
   </div>
 </template>
@@ -18,6 +20,8 @@
   import ContextUser from './components/ContextUser.vue';
   import UserList from './components/UserList.vue';
   import ShareAccountList from './components/ShareAccountList.vue';
+  import ConsumeRecords from './components/ConsumeRecords.vue';
+  import RechargeRecords from './components/RechargeRecords.vue';
   import { loginUser } from '../../util/api';
     export default {
         name: 'loading-page',
@@ -29,7 +33,9 @@
             menuTitle:{
               'account':'账号管理',
               'user':'用户管理',
-              'share':'账号管理/共享账号'
+              'share':'账号管理/共享账号',
+              'consumeRecords':'账号管理/消费记录',
+              'rechargeRecords':'账号管理/充值记录',
             }
           }
         },
@@ -40,6 +46,8 @@
           ,ContextUser
           ,UserList
           ,ShareAccountList
+          ,ConsumeRecords
+          ,RechargeRecords
         },
         methods: {
           toggleMenu(menu){
