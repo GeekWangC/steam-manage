@@ -44,8 +44,19 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "artifactName": "${productName}_${version}.${ext}",
+      "verifyUpdateCodeSignature": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32"
+          ] 
+        }
+      ]
     },
+    
     "linux": {
       "icon": "build/icons"
     }

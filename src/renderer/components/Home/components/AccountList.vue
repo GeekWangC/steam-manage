@@ -39,7 +39,7 @@
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input,Pagination } from 'ant-design-vue';
+	import { Table,Button,Modal,Form,Input,Pagination,message } from 'ant-design-vue';
 	import { getRelations,recharge,getRechargeRecords,getConsumeRecords } from '../../../util/api';
 	const columns = [
 	  {
@@ -147,6 +147,7 @@
 				rechargeForm: this.$form.createForm(this, { name: 'rechargeForm' }),
 				visible:false,
 				accountId:'',
+				dispath:false,
       }
     },
     components: {
@@ -193,6 +194,7 @@
     		})
     		.catch(function (error) {
           console.log(error);
+
         });
     	},
     	handleRechargeToggle(accountId){
@@ -200,7 +202,10 @@
     		this.visible = !this.visible;
     	},
     	handleRecharge(e){
-
+    		if(this.dispath){
+    			return false;
+    		}
+    		this.dispath = true;
     		// 事件绑定 - 充值
     		e.preventDefault();
     		const self = this;
@@ -219,6 +224,7 @@
     		if(!token){
     			this.$router.replace('/');
     		}
+    		
     		this.$http.post(
     			recharge,
     			JSON.stringify(params),
@@ -232,11 +238,15 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.data = res.data.data;
+    			self.dispath = false;
+    			self.visible = false;
     		})
     		.catch(function (error) {
           console.log(error);
+          self.dispath = false;
+          message.error('充值失败，请重试', [2])
         });
+	      
     	},
     	handleRechargeRecords(e,id){
     		// 事件绑定 - 充值记录
