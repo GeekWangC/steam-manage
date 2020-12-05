@@ -194,7 +194,11 @@
     		})
     		.catch(function (error) {
           console.log(error);
-
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	},
     	handleRechargeToggle(accountId){
@@ -244,7 +248,11 @@
     		.catch(function (error) {
           console.log(error);
           self.dispath = false;
-          message.error('充值失败，请重试', [2])
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	message.error('充值失败，请重试', [2])
+        	}
         });
 	      
     	},
