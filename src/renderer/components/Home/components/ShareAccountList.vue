@@ -33,12 +33,15 @@
 	        提交
 	      </a-button>
 	    </a-form>
+	    <div class="contain-main">
+				<a-spin size="large" v-if='loading2' />
+			</div>
 	  </a-modal>
 	</div>
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input,Switch,Pagination } from 'ant-design-vue';
+	import { Spin,Table,Button,Modal,Form,Input,Switch,Pagination,message } from 'ant-design-vue';
 	import { getShareAccount,checkEmail,deleteShareAccount,setShareStatus } from '../../../util/api';
 
 			// "canHandle": true,
@@ -84,8 +87,9 @@
         data:[],
 				pagination: {},
 				loading: false,
+				loading2: false,
 				columns,
-				currentPage:0,
+				currentPage:1,
 				pageSize:10,
 				visible:false,
 				checkEmailForm: this.$form.createForm(this, { name: 'checkEmailForm' }),
@@ -102,13 +106,14 @@
     	AFormItem:Form.Item,
     	ASwitch:Switch,
     	APagination:Pagination,
+    	ASpin:Spin,
     },
     mounted(){
     	this.getShareAccountList();
     },
     methods: {
     	handleChange(current){
-    		this.currentPage = current - 1;
+    		this.currentPage = current;
 				this.getShareAccountList();
     	},
     	getShareAccountList(e){
@@ -134,6 +139,7 @@
     		.then(function(response){
     			const res = response.data;
     			self.data = res.data;
+    			self.total = res.data.totalNum || 1;
     		})
     		.catch(function (error) {
           console.log(error);
@@ -162,6 +168,10 @@
     	interCheckEmail(params){
 
 				const self = this;
+				if(self.loading2){
+					return;
+				}
+				self.loading2 = true;
     		const token = sessionStorage.getItem('token');
     		if(!token){
     			this.$router.replace('/');
@@ -180,9 +190,15 @@
     		.then(function(response){
     			const res = response.data;
     			self.data = res.data.data;
+    			self.loading2 = false;
     		})
     		.catch(function (error) {
-          console.log(error);
+          self.loading2 = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	},
     	interSetShareSwitch(id,status){
@@ -209,7 +225,11 @@
     			const res = response.data;
     		})
     		.catch(function (error) {
-          console.log(error);
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	},
     	interDeleteShareSwitch(id){
@@ -232,9 +252,19 @@
     		)
     		.then(function(response){
     			const res = response.data;
+    			if(res.data){
+    				message.info('删除成功', [2])
+    				self.getShareAccountList()
+    			}else{
+    				message.error('网络异常，请稍后再试', [2])
+    			}
     		})
     		.catch(function (error) {
-          console.log(error);
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	},
 
@@ -254,4 +284,14 @@
     -o-justify-content: flex-end;
     justify-content: flex-end;
   }
+.contain-main{
+	width:100%;height:100%;
+  display: -webkit-box;display: -moz-box;       
+  display: -ms-flexbox;display: -webkit-flex;display: flex;
+  -webkit-box-align: center;-webkit-align-items: center;-moz-align-items: center;
+  -ms-align-items: center;-o-align-items: center;align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;-moz-justify-content: center;
+  -ms-justify-content: center;-o-justify-content: center;justify-content: center;
+}
 </style>

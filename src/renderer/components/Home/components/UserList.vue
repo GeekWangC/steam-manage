@@ -50,13 +50,17 @@
 		    <a-button type="primary" html-type="submit">
 	        提交
 	      </a-button>
+	      <div class="contain-main">
+					<a-spin size="large" v-if='loading2' />
+				</div>
 	    </a-form>
+	    
 	  </a-modal>
 	</div>
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input,Pagination } from 'ant-design-vue';
+	import { Spin,Table,Button,Modal,Form,Input,Pagination,message } from 'ant-design-vue';
 	import { getUserList,checkEmail } from '../../../util/api';
 	const columns = [
 	  {
@@ -95,6 +99,7 @@
         data:[],
 				pagination: {},
 				loading: false,
+				loading2:false,
 				columns,
 				currentPage:0,
 				pageSize:10,
@@ -112,6 +117,7 @@
     	AInput:Input,
     	AFormItem:Form.Item,
     	APagination:Pagination,
+    	ASpin:Spin,
     },
     mounted(){
     	this.getUserList();
@@ -164,7 +170,10 @@
 	      });
     	},
     	interCheckEmail(params){
-
+    		if(this.loading2){
+    			return false;
+    		}
+    		this.loading2 = true;
 				const self = this;
     		const token = sessionStorage.getItem('token');
     		if(!token){
@@ -184,8 +193,10 @@
     		.then(function(response){
     			const res = response.data;
     			self.data = res.data.data;
+    			self.loading2 = false;
     		})
     		.catch(function (error) {
+    			self.loading2 = false;
           if (error.response.status === 401) {
 		      	self.$router.replace('/');
 			    }else{

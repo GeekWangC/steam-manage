@@ -3,10 +3,15 @@
     <left @toggleMenu="toggleMenu">df</left>
     <div class="context">
       <context-user></context-user>
-      <context-header :title="menuTitle[menu]" @toggleMenu="toggleMenu"></context-header>
-      <account-list @toggleMenu="toggleMenu" v-show="menu == 'account'"></account-list>
-      <user-list v-show="menu == 'user'"></user-list>
-      <share-account-list v-show="menu == 'share'"></share-account-list>
+      <context-header 
+        :title="menuTitle[menu]" 
+        @toggleHandleAccount="toggleHandleAccount"
+        @toggleMenu="toggleMenu"></context-header>
+      <account-list 
+        @toggleMenu="toggleMenu" 
+        :key="handleAccount" v-if="menu == 'account'"></account-list>
+      <user-list v-if="menu == 'user'"></user-list>
+      <share-account-list v-if="menu == 'share'"></share-account-list>
       <recharge-records :accountId='accountId' v-if="menu == 'rechargeRecords'"></recharge-records>
       <consume-records :accountId='accountId' v-if="menu == 'consumeRecords'"></consume-records>
     </div>
@@ -33,11 +38,12 @@
             menuTitle:{
               'account':'账号管理',
               'user':'用户管理',
-              'share':'账号管理/共享账号',
+              'share':'账号管理/发送权限',
               'consumeRecords':'账号管理/消费记录',
               'rechargeRecords':'账号管理/充值记录',
             },
             accountId:'',
+            handleAccount:false,
           }
         },
         components: {
@@ -51,6 +57,9 @@
           ,RechargeRecords
         },
         methods: {
+          toggleHandleAccount(){
+            this.handleAccount = !this.handleAccount;
+          },
           toggleMenu(menu,id){
             this.menu = menu;
             this.accountId = id;

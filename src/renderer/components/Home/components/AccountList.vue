@@ -11,7 +11,7 @@
 	    <span slot="action" class="action-contain" slot-scope="text, record">
 	      <a-button type="primary" @click="handleRechargeToggle(record.accountId)">充值</a-button>
 	      <a-button type="primary" @click="handleRechargeRecords($event,record.accountId)">充值记录</a-button>
-	      <a-button type="primary" @click="handleShareAccount">共享账号</a-button>
+	      <a-button type="primary" @click="handleShareAccount">发送权限</a-button>
 	      <a-button type="primary" @click="handleConsumeRecords($event,record.accountId)">消费记录</a-button>
 	    </span>
 		</a-table>
@@ -33,13 +33,16 @@
 		    <a-button type="primary" html-type="submit">
 	        提交
 	      </a-button>
+	      <div class="contain-main">
+					<a-spin size="large" v-if='dispath' />
+				</div>
 	    </a-form>
 	  </a-modal>
 	</div>
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input,Pagination,message } from 'ant-design-vue';
+	import { Table,Button,Modal,Form,Input,Pagination,message,Spin } from 'ant-design-vue';
 	import { getRelations,recharge,getRechargeRecords,getConsumeRecords } from '../../../util/api';
 	const columns = [
 	  {
@@ -129,6 +132,7 @@
 // ];
   export default {
     name: 'contextList',
+    props:['handleAccount'],
     data() {
       return {
         data:[],
@@ -158,6 +162,7 @@
     	AInput:Input,
     	AFormItem:Form.Item,
     	APagination:Pagination,
+    	ASpin:Spin,
     },
     mounted(){
     	this.getRelations();
@@ -190,7 +195,7 @@
     		.then(function(response){
     			const res = response.data;
     			self.data = res.data.data;
-    			self.total = res.data.total || 1;
+    			self.total = res.data.totalNum || 1;
     		})
     		.catch(function (error) {
           console.log(error);

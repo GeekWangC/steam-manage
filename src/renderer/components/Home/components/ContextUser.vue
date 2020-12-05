@@ -13,20 +13,52 @@
 
 <script>
 	import { Button,Modal,Form,Input,Select } from 'ant-design-vue';
-	import { addAcconut } from '../../../util/api';
+	import { addAcconut,userMsg } from '../../../util/api';
   export default {
     name: 'contextUser',
     data() {
       return {
-        userName:'test1',
+        userName:'1',
       }
     },
     components: {
     	
     },
     mounted(){
+    	this.getUserMsg();
     },
     methods: {
+    	getUserMsg(e){
+    		const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.get(
+    			userMsg,
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.userName = res.data.name;
+    			self.admin = res.data.admin;
+    			self.total = res.data.total || 1;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
+        });
+    	}
     },
   }
 </script>

@@ -1,67 +1,71 @@
 <template>
-	<div class="context-header">
-		<div class="context-menu">
-			<span 
-				v-for="(item,index) in title.split('/')" 
-				@click="handleSetRouter($event,item)"
-				:key="index">{{item}}/</span>	
-		</div>
-		
-		<div class="context-util">
-			<a-select v-show="1==2" default-value="lucy" style="width: 120px" @change="handleChange">
-	      <a-select-option value="jack">
-	        Jack
-	      </a-select-option>
-	      <a-select-option value="lucy">
-	        Lucy
-	      </a-select-option>
-	      <a-select-option value="disabled" disabled>
-	        Disabled
-	      </a-select-option>
-	      <a-select-option value="Yiminghe">
-	        yiminghe
-	      </a-select-option>
-	    </a-select>
-			<a-button type="primary" @click="handleSetLimitToggole">账号使用者上限设置</a-button>
-			<a-button type="primary" @click="handleAddAccount">+ 创建账号</a-button>
-		</div>
+	<div>
+		<div class="context-header">
+			<div class="context-menu">
+				<span 
+					v-for="(item,index) in title.split('/')" 
+					@click="handleSetRouter($event,item)"
+					:key="index">{{item}}/</span>	
+			</div>
+			
+			<div class="context-util">
+				<a-select v-show="1==2" default-value="lucy" style="width: 120px" @change="handleChange">
+		      <a-select-option value="jack">
+		        Jack
+		      </a-select-option>
+		      <a-select-option value="lucy">
+		        Lucy
+		      </a-select-option>
+		      <a-select-option value="disabled" disabled>
+		        Disabled
+		      </a-select-option>
+		      <a-select-option value="Yiminghe">
+		        yiminghe
+		      </a-select-option>
+		    </a-select>
+				<a-button type="primary" @click="handleSetLimitToggole">账号使用者上限设置</a-button>
+				<a-button type="primary" @click="handleAddAccount">+ 创建账号</a-button>
+			</div>
 
-		<a-modal v-model="visible" title="录入账号" :footer="null">
-      <a-form :form="addConuntForm" @submit="handleSubmit">
-      	<a-form-item label="账号">
-		      <a-input
-		        v-decorator="['name', { rules: [{ required: true, message: '请输入账号' }] }]"
-		      />
-		    </a-form-item>
-		    <a-form-item label="密码">
-		      <a-input
-		        v-decorator="['password', { rules: [{ required: true, message: '请输入密码' }] }]"
-		      />
-		    </a-form-item>
-		    <a-button type="primary" html-type="submit">
-	        提交
-	      </a-button>
-      </a-form>
-    </a-modal>
+		</div>
+		<div>
+			<a-modal v-model="visible" title="录入账号" :footer="null">
+	      <a-form :form="addConuntForm" @submit="handleSubmit">
+	      	<a-form-item label="账号">
+			      <a-input
+			        v-decorator="['name', { rules: [{ required: true, message: '请输入账号' }] }]"
+			      />
+			    </a-form-item>
+			    <a-form-item label="密码">
+			      <a-input
+			        v-decorator="['password', { rules: [{ required: true, message: '请输入密码' }] }]"
+			      />
+			    </a-form-item>
+			    <a-button type="primary" html-type="submit">
+		        提交
+		      </a-button>
+	      </a-form>
+	    </a-modal>
 
-    <a-modal v-model="visible2" title="账号使用者上限设置" :footer="null">
-      <a-form :form="setLimitForm" @submit="handleSetLimit">
-		    <a-form-item label="使用者人数上限">
-		      <a-input
-		      	type="number"
-		        v-decorator="['limit', { rules: [{ required: true, message: '请输入使用者人数上限' }] }]"
-		      />
-		    </a-form-item>
-		    <a-button type="primary" html-type="submit">
-	        提交
-	      </a-button>
-      </a-form>
-    </a-modal>
+	    <a-modal v-model="visible2" title="账号使用者上限设置" :footer="null">
+	      <a-form :form="setLimitForm" @submit="handleSetLimit">
+			    <a-form-item label="使用者人数上限">
+			      <a-input
+			      	type="number"
+			        v-decorator="['limit', { rules: [{ required: true, message: '请输入使用者人数上限' }] }]"
+			      />
+			    </a-form-item>
+			    <a-button type="primary" html-type="submit">
+		        提交
+		      </a-button>
+	      </a-form>
+	    </a-modal>
+	  </div>
 	</div>
 </template>
 
 <script>
-	import { Button,Modal,Form,Input,Select } from 'ant-design-vue';
+	import { Button,Modal,Form,Input,Select,message } from 'ant-design-vue';
 	import { addAcconut,setLimit } from '../../../util/api';
   export default {
     name: 'contextHeader',
@@ -78,9 +82,9 @@
         menuTitle:{
           '账号管理':'account',
           '用户管理':'user',
-          '账号管理/共享账号':'share',
-          '账号管理/消费记录':'consumeRecords',
-          '账号管理/充值记录':'rechargeRecords',
+          '发送权限':'share',
+          '消费记录':'consumeRecords',
+          '充值记录':'rechargeRecords',
         }
       }
     },
@@ -148,10 +152,17 @@
     			const res = response.data;
     			if(res.data){
     				self.visible = !self.visible;
+    				self.name = '',
+        		self.password = '',
+    				self.$emit('toggleHandleAccount','');
     			};
     		})
     		.catch(function (error) {
-          console.log(error);
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	},
     	setLimit(param){
@@ -177,10 +188,15 @@
     			const res = response.data;
     			if(res.data){
     				self.visible2 = !self.visible2;
+    				message.info('设置成功', [2])
     			};
     		})
     		.catch(function (error) {
-          console.log(error);
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
         });
     	}
 

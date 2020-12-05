@@ -31,6 +31,8 @@ export let getConsumeRecords = domain + '/api/get/account/consumeRecords'
 export let getUserList = domain + '/api/get/user/list';
 // 验证邮箱
 export let checkEmail = domain + '/api/verify/emailCode';
+// 用户信息
+export let userMsg = domain + '/api/get/user/info';
 
 
 var createUser123123 = function () {
