@@ -4,7 +4,7 @@
 			<span 
 				v-for="(item,index) in title.split('/')" 
 				@click="handleSetRouter($event,item)"
-				key="index">{{item}}/</span>	
+				:key="index">{{item}}/</span>	
 		</div>
 		
 		<div class="context-util">

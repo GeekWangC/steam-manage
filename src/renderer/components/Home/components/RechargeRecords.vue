@@ -11,6 +11,7 @@
 
   	// 充值记录
     name: 'rechargeRecords',
+    props:['accountId'],
     data() {
       return {
         data:'',
@@ -20,7 +21,7 @@
     	
     },
     mounted(){
-    	this.getRechargeRecords();
+    	this.accountId && this.getRechargeRecords();
     },
     methods: {
     	getRechargeRecords(e){
@@ -33,8 +34,7 @@
     			getRechargeRecords,
     			{
     				params:{
-	    				pageSize:self.pageSize,
-	    				currentPage:self.currentPage
+	    				accountId:self.accountId,
 	    			},
     				headers: { 
   						'Content-Type': "application/json", 

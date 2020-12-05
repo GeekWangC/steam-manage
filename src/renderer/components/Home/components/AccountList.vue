@@ -2,16 +2,27 @@
 	<div>
 		<a-table 
 			key="accountList"
-			:pagination="pagination"
+			:pagination="false"
 	    :loading="loading"
 			:columns="columns" :data-source="data">
-	    <span slot="action" slot-scope="text, record">
+			<span slot="index" slot-scope="text, record,index">
+				{{currentPage*pageSize+parseInt(index)+1}}
+			</span>
+	    <span slot="action" class="action-contain" slot-scope="text, record">
 	      <a-button type="primary" @click="handleRechargeToggle(record.accountId)">充值</a-button>
-	      <a-button type="primary" @click="handleRechargeRecords">充值记录</a-button>
+	      <a-button type="primary" @click="handleRechargeRecords($event,record.accountId)">充值记录</a-button>
 	      <a-button type="primary" @click="handleShareAccount">共享账号</a-button>
-	      <a-button type="primary" @click="handleConsumeRecords">消费记录</a-button>
+	      <a-button type="primary" @click="handleConsumeRecords($event,record.accountId)">消费记录</a-button>
 	    </span>
 		</a-table>
+		<div class="pagination">
+			<a-pagination
+	      :total="total"
+	      :page-size="10"
+	      :default-current="1"
+	      @change="handleChange"
+	    />
+	  </div>
 		<a-modal v-model="visible" title="充值" :footer="null">
 	    <a-form :form="rechargeForm" @submit="handleRecharge">
 		    <a-form-item label="礼品卡代码">
@@ -28,15 +39,14 @@
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input } from 'ant-design-vue';
+	import { Table,Button,Modal,Form,Input,Pagination } from 'ant-design-vue';
 	import { getRelations,recharge,getRechargeRecords,getConsumeRecords } from '../../../util/api';
 	const columns = [
 	  {
 	  	title: '编号',
-	    dataIndex: 'name111',
-	    key: 'name111',
-	    slots: { title: 'customTitle' },
-	    scopedSlots: { customRender: 'name' },
+	    dataIndex: 'index',
+	    key: 'index',
+	    scopedSlots: { customRender: 'index' },
 	  },
 	  {
 	    title: '备注',
@@ -122,11 +132,18 @@
     data() {
       return {
         data:[],
-				pagination: {},
+				pagination: {
+					change:(current)=>{
+						this.currentPage = page - 1;
+						this.getRelations();
+					},
+					total:this.total,
+				},
 				loading: false,
 				columns,
 				currentPage:0,
 				pageSize:10,
+				total:3,
 				rechargeForm: this.$form.createForm(this, { name: 'rechargeForm' }),
 				visible:false,
 				accountId:'',
@@ -139,11 +156,16 @@
     	AForm:Form,
     	AInput:Input,
     	AFormItem:Form.Item,
+    	APagination:Pagination,
     },
     mounted(){
     	this.getRelations();
     },
     methods: {
+    	handleChange(current){
+    		this.currentPage = current - 1;
+				this.getRelations();
+    	},
     	getRelations(e){
     		const self = this;
     		const token = sessionStorage.getItem('token');
@@ -167,6 +189,7 @@
     		.then(function(response){
     			const res = response.data;
     			self.data = res.data.data;
+    			self.total = res.data.total || 1;
     		})
     		.catch(function (error) {
           console.log(error);
@@ -215,15 +238,15 @@
           console.log(error);
         });
     	},
-    	handleRechargeRecords(e){
+    	handleRechargeRecords(e,id){
     		// 事件绑定 - 充值记录
     		e.preventDefault();
-    		this.$emit('toggleMenu','rechargeRecords');
+    		this.$emit('toggleMenu','rechargeRecords',id);
     	},
-    	handleConsumeRecords(e){
+    	handleConsumeRecords(e,id){
     		// 事件绑定 - 消费记录
     		e.preventDefault();
-    		this.$emit('toggleMenu','consumeRecords');
+    		this.$emit('toggleMenu','consumeRecords',id);
     	},
     	handleShareAccount(e){
     		// 事件绑定 - 共享账号
@@ -235,59 +258,26 @@
   }
 </script>
 <style scoped>
-    .left-menu{
-        width:300px;height:100%;
-        display:flex;
-        -webkit-box-orient: vertical;
-        -webkit-flex-direction: column;-moz-flex-direction: column;
-        -ms-flex-direction: column;-o-flex-direction: column;flex-direction: column;
-        padding-top:46px;
-    }
-    header {
-        padding-left: 40px;
-        font-size: 28px;
-        font-family: Helvetica-Bold, Helvetica;
-        font-weight: bold;
-        color: #183B56;
-    }
-    .header-img {
-        width:46px;height:46px;
-        margin-right:20px;
-    }
-    .left-menu-title {
-        padding:34px 0 37px 40px;
-        font-size: 13px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #6C6C6C;
-    }
-    ul{
-        flex:1;
-    }
-    li {
-        display:flex;
-        align-items:center;
-        width: 100%;
-        height: 54px;
-        background: #fff;
-        padding-left:42px;
-        cursor:pointer;
-        border-left: 3px solid #fff;
-    }
-    .menu-img {
-        width:20px;height:20px;margin-right:20px;
-    }
-
-    .sel {
-        background: #F4F3FA;
-        border-left: 3px solid #364FF0;
-    }
-    footer {
-        padding-left:40px;
-        font-size: 13px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #0D0E10;
-        line-height: 22px;
-    }
+  .pagination{
+  	width:100%;
+  	padding-top:20px;
+    display: -webkit-box;display: -moz-box;       
+    display: -ms-flexbox;display: -webkit-flex;display: flex;
+    -webkit-justify-content: flex-end;
+    -moz-justify-content: flex-end;
+    -ms-justify-content: flex-end;
+    -o-justify-content: flex-end;
+    justify-content: flex-end;
+  }
+  .action-contain{
+  	display: -webkit-box;display: -moz-box;       
+    display: -ms-flexbox;display: -webkit-flex;display: flex;
+    -webkit-box-lines: multiple;-webkit-flex-wrap: wrap;-moz-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;-o-flex-wrap: wrap;flex-wrap: wrap;
+  }
+  .action-contain button{
+  	width: 47%;
+    margin-right: 3%;
+    margin-bottom: 5px;
+  }
 </style>

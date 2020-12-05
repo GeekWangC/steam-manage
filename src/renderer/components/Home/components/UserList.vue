@@ -1,9 +1,12 @@
 <template>
 	<div>
 		<a-table 
-			:pagination="pagination"
+			:pagination="false"
 	    :loading="loading"
 			:columns="columns" :data-source="data">
+			<span slot="index" slot-scope="text, record,index">
+				{{currentPage*pageSize+parseInt(index)+1}}
+			</span>
 	    <!-- <a slot="name" slot-scope="text">{{ text }}</a>
 	    <span slot="customTitle"><a-icon type="smile-o" /> Name</span>
 	    <span slot="tags" slot-scope="tags">
@@ -29,6 +32,14 @@
 	      </a-button>
 	    </span>
 		</a-table>
+		<div class="pagination">
+			<a-pagination
+	      :total="total"
+	      :page-size="10"
+	      :default-current="1"
+	      @change="handleChange"
+	    />
+	  </div>
 		<a-modal v-model="visible" title="充值" :footer="null">
 	    <a-form :form="checkEmailForm" @submit="checkEmail">
 		    <a-form-item label="验证码">
@@ -45,7 +56,7 @@
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input, } from 'ant-design-vue';
+	import { Table,Button,Modal,Form,Input,Pagination } from 'ant-design-vue';
 	import { getUserList,checkEmail } from '../../../util/api';
 	const columns = [
 	  {
@@ -53,7 +64,7 @@
 	    dataIndex: 'name111',
 	    key: 'name111',
 	    slots: { title: 'customTitle' },
-	    scopedSlots: { customRender: 'name' },
+	    scopedSlots: { customRender: 'index' },
 	  },
 	  {
 	    title: 'steam账号',
@@ -88,6 +99,7 @@
 				currentPage:0,
 				pageSize:10,
 				visible:false,
+				total:1,
 				checkEmailForm: this.$form.createForm(this, { name: 'checkEmailForm' }),
 				accountId:'',
       }
@@ -99,11 +111,16 @@
     	AForm:Form,
     	AInput:Input,
     	AFormItem:Form.Item,
+    	APagination:Pagination,
     },
     mounted(){
     	this.getUserList();
     },
     methods: {
+    	handleChange(current){
+    		this.currentPage = current - 1;
+				this.getUserList();
+    	},
     	getUserList(e){
     		const self = this;
     		const token = sessionStorage.getItem('token');
@@ -178,59 +195,15 @@
   }
 </script>
 <style scoped>
-    .left-menu{
-        width:300px;height:100%;
-        display:flex;
-        -webkit-box-orient: vertical;
-        -webkit-flex-direction: column;-moz-flex-direction: column;
-        -ms-flex-direction: column;-o-flex-direction: column;flex-direction: column;
-        padding-top:46px;
-    }
-    header {
-        padding-left: 40px;
-        font-size: 28px;
-        font-family: Helvetica-Bold, Helvetica;
-        font-weight: bold;
-        color: #183B56;
-    }
-    .header-img {
-        width:46px;height:46px;
-        margin-right:20px;
-    }
-    .left-menu-title {
-        padding:34px 0 37px 40px;
-        font-size: 13px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #6C6C6C;
-    }
-    ul{
-        flex:1;
-    }
-    li {
-        display:flex;
-        align-items:center;
-        width: 100%;
-        height: 54px;
-        background: #fff;
-        padding-left:42px;
-        cursor:pointer;
-        border-left: 3px solid #fff;
-    }
-    .menu-img {
-        width:20px;height:20px;margin-right:20px;
-    }
-
-    .sel {
-        background: #F4F3FA;
-        border-left: 3px solid #364FF0;
-    }
-    footer {
-        padding-left:40px;
-        font-size: 13px;
-        font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: #0D0E10;
-        line-height: 22px;
-    }
+  .pagination{
+  	width:100%;
+  	padding-top:20px;
+    display: -webkit-box;display: -moz-box;       
+    display: -ms-flexbox;display: -webkit-flex;display: flex;
+    -webkit-justify-content: flex-end;
+    -moz-justify-content: flex-end;
+    -ms-justify-content: flex-end;
+    -o-justify-content: flex-end;
+    justify-content: flex-end;
+  }
 </style>

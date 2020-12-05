@@ -11,6 +11,7 @@
 
   	// 消费记录
     name: 'consumeRecords',
+    props:['accountId'],
     data() {
       return {
         data:'',
@@ -20,7 +21,7 @@
     	
     },
     mounted(){
-    	this.getConsumeRecords();
+    	this.accountId && this.getConsumeRecords();
     },
     methods: {
     	getConsumeRecords(e){
@@ -33,8 +34,7 @@
     			getConsumeRecords,
     			{
     				params:{
-	    				pageSize:self.pageSize,
-	    				currentPage:self.currentPage
+	    				accountId:self.accountId
 	    			},
     				headers: { 
   						'Content-Type': "application/json", 

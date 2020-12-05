@@ -1,4 +1,5 @@
-var domain = 'http://124.71.179.72:8088';
+// var domain = 'http://124.71.179.72:8088';
+var domain = 'http://47.98.141.137:8088';
 export var createUser = domain + '/create/user';
 export var loginUser = domain + '/login';
 
@@ -20,10 +21,10 @@ export let setShareStatus= domain + '/api/change/relation/status'
 export let deleteShareAccount= domain + '/api/disable/relation'
 
 // 充值记录
-export let getRechargeRecords = domain + '/get/account/rechargeRecords'
+export let getRechargeRecords = domain + '/api/get/account/rechargeRecords'
 
 // 消费记录
-export let getConsumeRecords = domain + '/get/account/consumeRecords'
+export let getConsumeRecords = domain + '/api/get/account/consumeRecords'
 
 
 // 管理员查看用户信息列表
