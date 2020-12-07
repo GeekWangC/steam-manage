@@ -21,28 +21,32 @@
 </template>
 
 <script>
+  import { userMsg } from '../../../util/api';
     export default {
         name: 'loading-page',
         data() {
-            return {
-                userName: '',
-                password: '',
-                selIdx:0,
-                menuList:[
-                    {
-                        src:require('../image/icon-account.png'),
-                        title:'账号管理',
-                        menu:'account'
-                    },
-                    {
-                        src:require('../image/icon-user management@2x.png'),
-                        title:'用户管理',
-                        menu:'user'
-                    }
-                ]
-            }
+          return {
+            userName: '',
+            password: '',
+            selIdx:0,
+            menuList:[
+              {
+                src:require('../image/icon-account.png'),
+                title:'主界面',
+                menu:'account'
+              },
+              {
+                src:require('../image/icon-user management@2x.png'),
+                title:'接收账号',
+                menu:'user'
+              }
+            ]
+          }
         },
         components: {},
+        mounted(){
+          this.getUserMsg();
+        },
         methods: {
             handleMenuClick:function(idx,menu){
               this.selIdx = idx;
@@ -52,6 +56,57 @@
                 this.$router.replace('/');
                 sessionStorage.removeItem('token');
             },
+            getUserMsg(e){
+              const self = this;
+              const token = sessionStorage.getItem('token');
+              if(!token){
+                this.$router.replace('/');
+              }
+              this.$http.get(
+                userMsg,
+                {
+                  headers: { 
+                    'Content-Type': "application/json", 
+                    dataType: "json", 
+                    token,
+                  }
+                }
+              )
+              .then(function(response){
+                const res = response.data;
+                if(res.data && res.data.admin){
+                  self.menuList = [
+                    {
+                      src:require('../image/icon-account.png'),
+                      title:'主界面',
+                      menu:'account'
+                    },
+                    {
+                      src:require('../image/icon-user management@2x.png'),
+                      title:'接收账号',
+                      menu:'user'
+                    }
+                  ]
+                }else{
+                  self.menuList = [
+                    {
+                      src:require('../image/icon-account.png'),
+                      title:'主界面',
+                      menu:'account'
+                    },
+                  ]
+                }
+                
+              })
+              .catch(function (error) {
+                console.log(error);
+                if (error.response.status === 401) {
+                  self.$router.replace('/');
+                }else{
+                  message.error('网络异常，请稍后再试', [2])
+                }
+              });
+            }
         },
     }
 </script>
@@ -105,6 +160,7 @@
         border-left: 3px solid #364FF0;
     }
     footer {
+      cursor:pointer;
       padding-left:40px;
       font-size: 13px;
       font-family: PingFangSC-Regular, PingFang SC;

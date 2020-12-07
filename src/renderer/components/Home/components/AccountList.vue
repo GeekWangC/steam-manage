@@ -299,7 +299,8 @@
     -ms-flex-wrap: wrap;-o-flex-wrap: wrap;flex-wrap: wrap;
   }
   .action-contain button{
-  	width: 47%;
+  	width: 42%;
+  	padding:0;
     margin-right: 3%;
     margin-bottom: 5px;
   }

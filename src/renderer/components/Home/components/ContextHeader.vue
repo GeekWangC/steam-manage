@@ -23,8 +23,12 @@
 		        yiminghe
 		      </a-select-option>
 		    </a-select>
-				<a-button type="primary" @click="handleSetLimitToggole">账号使用者上限设置</a-button>
-				<a-button type="primary" @click="handleAddAccount">+ 创建账号</a-button>
+				<a-button type="primary" 
+					:disabled="!admin"
+					@click="handleSetLimitToggole">账号分享上限设置</a-button>
+				<a-button type="primary" @click="handleAddAccount">+ {{
+					title === '接收账号'?'用户录入':'创建账号'
+				}}</a-button>
 			</div>
 
 		</div>
@@ -39,6 +43,11 @@
 			    <a-form-item label="密码">
 			      <a-input
 			        v-decorator="['password', { rules: [{ required: true, message: '请输入密码' }] }]"
+			      />
+			    </a-form-item>
+			    <a-form-item v-if="showVartoken" label="令牌验证">
+			      <a-input
+			        v-decorator="['vartoken', { rules: [{ required: true, message: '请输入令牌验证' }] }]"
 			      />
 			    </a-form-item>
 			    <a-button type="primary" html-type="submit">
@@ -66,26 +75,30 @@
 
 <script>
 	import { Button,Modal,Form,Input,Select,message } from 'ant-design-vue';
-	import { addAcconut,setLimit } from '../../../util/api';
+	import { addAcconut,setLimit,userMsg } from '../../../util/api';
   export default {
     name: 'contextHeader',
     props: ['title'],
     data() {
       return {
+      	admin:false,
         visible:false,
         visible2:false,
         addConuntForm: this.$form.createForm(this, { name: 'coordinated' }),
         setLimitForm: this.$form.createForm(this, { name: 'setLimitForm' }),
         name:'',
         password:'',
+
         limit:'',
         menuTitle:{
-          '账号管理':'account',
-          '用户管理':'user',
+          '主界面':'account',
+          '接收账号':'user',
           '发送权限':'share',
           '消费记录':'consumeRecords',
           '充值记录':'rechargeRecords',
-        }
+        },
+        vartoken:'',
+        showVartoken:false,
       }
     },
     components: {
@@ -98,6 +111,7 @@
     	ASelectOption:Select.Option
     },
     mounted(){
+    	this.getUserMsg();
     },
     methods: {
     	handleSetRouter(e,router){
@@ -112,7 +126,9 @@
     		this.visible = !this.visible;
     	},
     	handleSetLimitToggole(){
-    		this.visible2 = !this.visible2;
+    		if(this.admin){
+    			this.visible2 = !this.visible2;	
+    		}
     	},
     	handleSetLimit(e){
     		e.preventDefault();
@@ -137,6 +153,7 @@
     		if(!token){
     			this.$router.replace('/');
     		}
+    		// self.showVartoken = true;
     		this.$http.post(
     			addAcconut,
     			JSON.stringify(param),
@@ -150,6 +167,12 @@
     		)
     		.then(function(response){
     			const res = response.data;
+
+    			// 等后台接口调整结构
+    			if(res && res.data && res.data.token){
+    				self.showVartoken = true;
+    				return;
+    			}
     			if(res.data){
     				self.visible = !self.visible;
     				self.name = '',
@@ -192,6 +215,35 @@
     			};
     		})
     		.catch(function (error) {
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
+        });
+    	},
+    	getUserMsg(e){
+    		const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.get(
+    			userMsg,
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.admin = res.data.admin;
+    		})
+    		.catch(function (error) {
+          console.log(error);
           if (error.response.status === 401) {
 		      	self.$router.replace('/');
 			    }else{

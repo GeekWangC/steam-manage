@@ -1,5 +1,6 @@
 <template>
   <main class="login-contian">
+    <button @click="handleCreate">悄悄注册</button>
     <form class="form">
         <div class="form__cover"></div>
         <div class="form__loader">
@@ -83,8 +84,8 @@
                 this.$http.post(
                     createUser,
                     JSON.stringify({
-                        userName: 'test2',
-                        password: 'test2'
+                        userName: this.userName,
+                        password: this.password
                     }),
                     {
                         headers: { 'Content-Type': "application/json", dataType: "json", }
