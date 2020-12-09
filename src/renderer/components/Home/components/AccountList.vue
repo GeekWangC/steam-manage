@@ -4,6 +4,7 @@
 			key="accountList"
 			:pagination="false"
 	    :loading="loading"
+	    :rowKey='record=>record.accountId'
 			:columns="columns" :data-source="data">
 			<span slot="index" slot-scope="text, record,index">
 				{{currentPage*pageSize+parseInt(index)+1}}
@@ -51,7 +52,7 @@
 	      </a-button>
 	    </a-form>
 	    <div class="contain-main">
-				<a-spin size="large" v-if='loading2' />
+				<a-spin size="large" v-if='dispath' />
 			</div>
 	  </a-modal>
 	</div>
@@ -329,15 +330,19 @@
 	      
     	},
     	handleRefreshAccount(e,accountId){
-
+    		if(this.dispath){
+    			return false;
+    		}
+    		this.dispath = true;
+    		this.loading = true;
     		// 事件绑定，刷新
     		e.preventDefault();
-    		this.accountId = accountId;
-    		this.interRefresh({accountId})
+    		this.accountId = parseInt(accountId);
+    		this.interRefresh(accountId)
     	},
-    	interRefresh(params){
+    	interRefresh(accountId){
 
-    		// 接口请求-充值
+    		// 接口请求-刷新账号
 				const self = this;
     		const token = sessionStorage.getItem('token');
     		if(!token){
@@ -345,8 +350,8 @@
     		}
     		
     		this.$http.post(
-    			refreshAccount,
-    			JSON.stringify(params),
+    			refreshAccount+'?accountId='+accountId,
+    			{},
     			{
     				headers: { 
   						'Content-Type': "application/json", 
@@ -357,16 +362,28 @@
     		)
     		.then(function(response){
     			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			// 0 未知错误
+    			// 1 多次登录失败，禁止登陆
+    			// 2 用户名或密码错误
+    			// 3 需要邮箱验证码、手机验证码或图形验证码
+    			// 4 功能调用失败
+    			// 5 功能调用成功
     			self.dispath = false;
-    			self.visible = false;
+    			self.loading = false;
+    			if(code !== '4'){
+    				self.visible2 = true;	
+    			}
+    			
     		})
     		.catch(function (error) {
           console.log(error);
           self.dispath = false;
+          self.loading = false;
           if (error.response.status === 401) {
 		      	self.$router.replace('/');
 			    }else{
-          	message.error('充值失败，请重试', [2])
+          	message.error('刷新失败，请重试', [2])
         	}
         });
 	      

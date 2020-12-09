@@ -3,6 +3,7 @@
 		<a-table 
 			:pagination="false"
 	    :loading="loading"
+	    :rowKey='record=>record.accountId'
 			:columns="columns" :data-source="data">
 			<span slot="index" slot-scope="text, record,index">
 				{{currentPage*pageSize+parseInt(index)+1}}
