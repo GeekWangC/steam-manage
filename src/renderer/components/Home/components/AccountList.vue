@@ -13,6 +13,7 @@
 	      <a-button type="primary" @click="handleRechargeRecords($event,record.accountId)">充值记录</a-button>
 	      <a-button type="primary" @click="handleShareAccount">发送权限</a-button>
 	      <a-button type="primary" @click="handleConsumeRecords($event,record.accountId)">消费记录</a-button>
+	      <a-button type="primary" @click="handleRefreshAccount($event,record.accountId)">刷新</a-button>
 	    </span>
 		</a-table>
 		<div class="pagination">
@@ -38,12 +39,30 @@
 				</div>
 	    </a-form>
 	  </a-modal>
+	  <a-modal v-model="visible2" title="验证码" :footer="null">
+	    <a-form :form="checkEmailForm" @submit="checkEmail">
+		    <a-form-item label="验证码">
+		      <a-input
+		        v-decorator="['emailCode', { rules: [{ required: true, message: '请输入验证码' }] }]"
+		      />
+		    </a-form-item>
+		    <a-button type="primary" html-type="submit">
+	        提交
+	      </a-button>
+	    </a-form>
+	    <div class="contain-main">
+				<a-spin size="large" v-if='loading2' />
+			</div>
+	  </a-modal>
 	</div>
 </template>
 
 <script>
 	import { Table,Button,Modal,Form,Input,Pagination,message,Spin } from 'ant-design-vue';
-	import { getRelations,recharge,getRechargeRecords,getConsumeRecords } from '../../../util/api';
+	import { getRelations,recharge,
+		getRechargeRecords,getConsumeRecords
+		,refreshAccount,checkEmail
+	} from '../../../util/api';
 	const columns = [
 	  {
 	  	title: '编号',
@@ -149,7 +168,9 @@
 				pageSize:10,
 				total:3,
 				rechargeForm: this.$form.createForm(this, { name: 'rechargeForm' }),
+				checkEmailForm: this.$form.createForm(this, { name: 'checkEmailForm' }),
 				visible:false,
+				visible2:false,
 				accountId:'',
 				dispath:false,
       }
@@ -168,6 +189,52 @@
     	this.getRelations();
     },
     methods: {
+    	checkEmail(e){
+    		e.preventDefault();
+    		const self = this;
+	      this.checkEmailForm.validateFields((err, values) => {
+	        if (!err) {
+	        	values.accountId = self.accountId;
+	          this.interCheckEmail(values);
+	        }
+	      });
+    	},
+    	interCheckEmail(params){
+
+				const self = this;
+				if(self.loading2){
+					return;
+				}
+				self.loading2 = true;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.post(
+    			checkEmail,
+    			JSON.stringify(params),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.data = res.data.data;
+    			self.loading2 = false;
+    		})
+    		.catch(function (error) {
+          self.loading2 = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
+        });
+    	},
     	handleChange(current){
     		this.currentPage = current - 1;
 				this.getRelations();
@@ -236,6 +303,49 @@
     		
     		this.$http.post(
     			recharge,
+    			JSON.stringify(params),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			self.dispath = false;
+    			self.visible = false;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.dispath = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	message.error('充值失败，请重试', [2])
+        	}
+        });
+	      
+    	},
+    	handleRefreshAccount(e,accountId){
+
+    		// 事件绑定，刷新
+    		e.preventDefault();
+    		this.accountId = accountId;
+    		this.interRefresh({accountId})
+    	},
+    	interRefresh(params){
+
+    		// 接口请求-充值
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		
+    		this.$http.post(
+    			refreshAccount,
     			JSON.stringify(params),
     			{
     				headers: { 

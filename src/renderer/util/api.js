@@ -26,6 +26,9 @@ export let getRechargeRecords = domain + '/api/get/account/rechargeRecords'
 // 消费记录
 export let getConsumeRecords = domain + '/api/get/account/consumeRecords'
 
+// 刷新账号
+export let refreshAccount = domain + '/api/refresh/account'
+
 
 // 管理员查看用户信息列表
 export let getUserList = domain + '/api/get/user/list';

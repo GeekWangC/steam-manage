@@ -1,6 +1,6 @@
 <template>
   <main class="login-contian">
-    <button @click="handleCreate">悄悄注册</button>
+    <button v-if="1===2" @click="handleCreate">悄悄注册</button>
     <form class="form">
         <div class="form__cover"></div>
         <div class="form__loader">
