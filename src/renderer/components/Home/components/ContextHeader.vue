@@ -26,8 +26,8 @@
 				<a-button type="primary" 
 					:disabled="!admin"
 					@click="handleSetLimitToggole">账号分享上限设置</a-button>
-				<a-button type="primary" @click="handleAddAccount">+ {{
-					title === '接收账号'?'用户录入':'创建账号'
+				<a-button v-if="title === '主界面'" type="primary" @click="handleAddAccount">+ {{
+					'创建'
 				}}</a-button>
 			</div>
 
@@ -46,7 +46,7 @@
 			      />
 			    </a-form-item>
 			    <a-form-item v-if="showVartoken" label="令牌验证">
-			      <a-input
+			      <a-input 
 			        v-decorator="['vartoken', { rules: [{ required: true, message: '请输入令牌验证' }] }]"
 			      />
 			    </a-form-item>
@@ -54,6 +54,9 @@
 		        提交
 		      </a-button>
 	      </a-form>
+	      <div class="contain-main">
+					<a-spin size="large" v-if='loading2' />
+				</div>
 	    </a-modal>
 
 	    <a-modal v-model="visible2" title="账号使用者上限设置" :footer="null">
@@ -75,7 +78,8 @@
 
 <script>
 	import { Button,Modal,Form,Input,Select,message } from 'ant-design-vue';
-	import { addAcconut,setLimit,userMsg } from '../../../util/api';
+	import { addAcconut,setLimit,userMsg
+		,checkEmail } from '../../../util/api';
   export default {
     name: 'contextHeader',
     props: ['title'],
@@ -99,6 +103,8 @@
         },
         vartoken:'',
         showVartoken:false,
+        newAccountId:'',
+        loading2:false,
       }
     },
     components: {
@@ -114,6 +120,48 @@
     	this.getUserMsg();
     },
     methods: {
+    	interCheckEmail(params){
+    		if(this.loading2){
+    			return false;
+    		}
+    		this.loading2 = true;
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		this.$http.post(
+    			checkEmail,
+    			JSON.stringify(params),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			// self.data = res.data.data;
+    			self.visible = !self.visible;
+    			self.loading2 = false;
+  				self.name = '',
+      		self.password = '',
+      		self.vartoken = '',
+  				self.$emit('toggleHandleAccount','');
+    			
+    		})
+    		.catch(function (error) {
+    			self.loading2 = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+			    	message.error('网络异常，请稍后再试', [2])
+			    }
+        });
+    	},
+
     	handleSetRouter(e,router){
     		// 事件绑定 - 切换路由
     		e.preventDefault();
@@ -141,9 +189,20 @@
     	},
     	handleSubmit(e) {
 	      e.preventDefault();
+	      const self = this;
 	      this.addConuntForm.validateFields((err, values) => {
+
 	        if (!err) {
-	          this.addAcconut(values);
+	        	if(values.vartoken){
+	      			const params = {
+	      				emailCode:values.vartoken,
+	      				accountId:self.newAccountId
+	      			}
+	      			this.interCheckEmail(params)
+	      		}else{
+	      			this.addAcconut(values);	
+	      		}
+	          
 	        }
 	      });
 	    },
@@ -169,7 +228,8 @@
     			const res = response.data;
 
     			// 等后台接口调整结构
-    			if(res && res.data && res.data.token){
+    			if(res && res.data && !res.data.needValidation){
+    				self.newAccountId = res.data.newAccountId;
     				self.showVartoken = true;
     				return;
     			}
@@ -269,5 +329,15 @@
 }
 .context-menu{
 	cursor:pointer;
+}
+.contain-main{
+	width:100%;height:100%;
+  display: -webkit-box;display: -moz-box;       
+  display: -ms-flexbox;display: -webkit-flex;display: flex;
+  -webkit-box-align: center;-webkit-align-items: center;-moz-align-items: center;
+  -ms-align-items: center;-o-align-items: center;align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;-moz-justify-content: center;
+  -ms-justify-content: center;-o-justify-content: center;justify-content: center;
 }
 </style>

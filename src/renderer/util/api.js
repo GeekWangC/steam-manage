@@ -29,6 +29,12 @@ export let getConsumeRecords = domain + '/api/get/account/consumeRecords'
 // 刷新账号
 export let refreshAccount = domain + '/api/refresh/account'
 
+// 删除账号
+export let deleteAccount = domain + '/api/disable/account'
+
+// 修改账号
+export let editAccount = domain + '/api/edit/account'
+
 
 // 管理员查看用户信息列表
 export let getUserList = domain + '/api/get/user/list';

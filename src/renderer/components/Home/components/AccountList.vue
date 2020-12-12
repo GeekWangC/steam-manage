@@ -5,16 +5,53 @@
 			:pagination="false"
 	    :loading="loading"
 	    :rowKey='record=>record.accountId'
+	    :scroll="{ x: 1400 }"
 			:columns="columns" :data-source="data">
 			<span slot="index" slot-scope="text, record,index">
 				{{currentPage*pageSize+parseInt(index)+1}}
 			</span>
+			<span slot="recharge" slot-scope="text, record,index">
+				<a-input :value='record.recharge'
+					@pressEnter='handleEditAccount($event,record.accountId,"recharge")'
+					@change='handleEditAccount($event,record.accountId,"recharge")'
+					/>
+			</span>
+			<span slot="handler" slot-scope="text, record,index">
+				<a-input :value='record.handler'
+					@pressEnter='handleEditAccount($event,record.accountId,"handler")'
+					@change='handleEditAccount($event,record.accountId,"handler")'
+					/>
+			</span>
+			<span slot="backcode" slot-scope="text, record,index">
+				<a-input :value='record.backcode'
+					@pressEnter='handleEditAccount($event,record.accountId,"backcode")'
+					@change='handleEditAccount($event,record.accountId,"backcode")'
+					/>
+			</span>
+			<span slot="status" slot-scope="text, record,index">
+				<a-select :default-value="record.status" style="width: 100px" @change="handleChangeStatus($event,record.accountId)">
+		      <a-select-option value="true">
+		        已完成
+		      </a-select-option>
+		      <a-select-option value="false">
+		        未完成
+		      </a-select-option>
+		    </a-select>
+			</span>
+			
+			
 	    <span slot="action" class="action-contain" slot-scope="text, record">
 	      <a-button type="primary" @click="handleRechargeToggle(record.accountId)">充值</a-button>
 	      <a-button type="primary" @click="handleRechargeRecords($event,record.accountId)">充值记录</a-button>
 	      <a-button type="primary" @click="handleShareAccount">发送权限</a-button>
 	      <a-button type="primary" @click="handleConsumeRecords($event,record.accountId)">消费记录</a-button>
 	      <a-button type="primary" @click="handleRefreshAccount($event,record.accountId)">刷新</a-button>
+	      <a-popconfirm placement="top" ok-text="Yes" cancel-text="No" @confirm="showDeleteConfirm($event,record.accountId)">
+	      	<template slot="title">
+	          <p>确定要删除吗？</p>
+	        </template>
+	      	<a-button type="danger">删除</a-button>
+	      </a-popconfirm>
 	    </span>
 		</a-table>
 		<div class="pagination">
@@ -59,11 +96,16 @@
 </template>
 
 <script>
-	import { Table,Button,Modal,Form,Input,Pagination,message,Spin } from 'ant-design-vue';
+	import { Table,Button,Modal,Form,Input,Pagination,message
+		,Spin,Popconfirm,Select } from 'ant-design-vue';
 	import { getRelations,recharge,
 		getRechargeRecords,getConsumeRecords
 		,refreshAccount,checkEmail
+		,deleteAccount,editAccount
 	} from '../../../util/api';
+	const emptyColumes = (text, row, index) => {
+    	return text || '暂空'
+    }
 	const columns = [
 	  {
 	  	title: '编号',
@@ -75,6 +117,7 @@
 	    title: '备注',
 	    dataIndex: 'remark',
 	    key: 'remark',
+	    customRender: emptyColumes,
 	  },
 	  {
 	    title: 'steam账号',
@@ -89,32 +132,42 @@
 	  },
 	  {
 	    title: '备用码',
-	    key: 'action11',
-	    scopedSlots: { customRender: 'action11' },
+	    key: 'backcode',
+	    dataIndex: 'backcode',
+	    scopedSlots: { customRender: 'backcode' },
 	  },
 	  {
 	    title: '账号地区',
 	    key: 'zone',
+	    dataIndex: 'zone',
+	    customRender: emptyColumes,
 	  },
 	  {
 	    title: '需充值金额',
 	    key: 'recharge',
+	    scopedSlots: { customRender: 'recharge' },
 	  },
 	  {
 	    title: '已充值金额参考',
 	    key: 'rechargeTotal',
+	    dataIndex: 'rechargeTotal',
+	    customRender: emptyColumes,
 	  },
 	  {
 	    title: '充值前余额',
 	    key: 'remainder',
+	    dataIndex: 'remainder',
+	    customRender: emptyColumes,
 	  },
 	  {
 	    title: '状态',
 	    key: 'status',
+	    scopedSlots: { customRender: 'status' },
 	  },
 	  {
 	    title: '操作人',
 	    key: 'handler',
+	    scopedSlots: { customRender: 'handler' },
 	  },
 	  {
 	    title: '创建时间',
@@ -123,10 +176,11 @@
 	  {
 	    title: '操作',
 	    key: 'action',
+	    fixed: 'right',
+	    width:'200',
 	    scopedSlots: { customRender: 'action' },
 	  },
 	];
-
 // const data = [
 //   {
 //     key: '1',
@@ -156,6 +210,9 @@
     data() {
       return {
         data:[],
+        localeData:{
+					emptyText:"暂空"
+				},
 				pagination: {
 					change:(current)=>{
 						this.currentPage = page - 1;
@@ -174,6 +231,11 @@
 				visible2:false,
 				accountId:'',
 				dispath:false,
+
+				recharge:'',// 需充值金额
+				handler:'',// 操作人
+				backcode:'',// 备用吗
+				status:'',// 状态
       }
     },
     components: {
@@ -185,11 +247,128 @@
     	AFormItem:Form.Item,
     	APagination:Pagination,
     	ASpin:Spin,
+    	APopconfirm:Popconfirm,
+    	ASelect:Select,
+    	ASelectOption:Select.Option
     },
     mounted(){
     	this.getRelations();
     },
     methods: {
+    	handleChangeStatus(value,id){
+    		this.status = value;
+    		this.interEdit(id);
+
+    		console.log(`selected ${value}`);
+    	},
+    	onDelete(accountId) {
+
+    		// 前端删除表格行
+	      const dataSource = [...this.data];
+	      this.data = dataSource.filter(item => item.accountId !== accountId);
+	    },
+	    showDeleteConfirm(e,accountId) {
+
+	    	// 事件绑定，删除
+	    	this.loading = true;
+	    	this.interDelete(accountId)
+	    },
+	    interDelete(accountId){
+
+    		// 接口请求-删除账号
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		
+    		this.$http.post(
+    			deleteAccount+'?id='+accountId,
+    			{},
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			
+    			if(res.data){
+    				self.loading = false;	
+    				self.onDelete(accountId);
+    			}else{
+    				message.error('删除失败，请重试', [2])
+    			}
+    			
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	message.error('删除失败，请重试', [2])
+        	}
+        });
+	      
+    	},
+    	handleEditAccount(e,accountId,type){
+
+    		// 事件绑定，备用编码，需充值金额，操作人编辑
+    		this[type] = e.target.value;
+    		this.interEdit(accountId);
+
+    	},
+    	interEdit(accountId){
+
+    		// 接口请求-修改账号
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		const { recharge,handler,backcode,status } = self;//record;
+    		
+    		this.$http.post(
+    			editAccount+'?accountId='+accountId,
+    			JSON.stringify({accountInfo:{
+    				recharge
+    				,handler
+    				,backcode
+    				,status
+    			}}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			self.loading = false;
+    			if(code !== '4'){
+    				self.visible2 = true;	
+    			}
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	// message.error('编辑失败，请重试', [2])
+        	}
+        });
+	      
+    	},
+
+    	
     	checkEmail(e){
     		e.preventDefault();
     		const self = this;
@@ -424,9 +603,10 @@
     display: -ms-flexbox;display: -webkit-flex;display: flex;
     -webkit-box-lines: multiple;-webkit-flex-wrap: wrap;-moz-flex-wrap: wrap;
     -ms-flex-wrap: wrap;-o-flex-wrap: wrap;flex-wrap: wrap;
+    width:150px;
   }
   .action-contain button{
-  	width: 42%;
+  	width: 70px;
   	padding:0;
     margin-right: 3%;
     margin-bottom: 5px;
