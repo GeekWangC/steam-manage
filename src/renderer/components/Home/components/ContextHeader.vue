@@ -52,6 +52,7 @@
 			    </a-form-item>
 			    <a-button type="primary" html-type="submit">
 		        提交
+
 		      </a-button>
 	      </a-form>
 	      <div class="contain-main">
@@ -77,7 +78,7 @@
 </template>
 
 <script>
-	import { Button,Modal,Form,Input,Select,message } from 'ant-design-vue';
+	import { Button,Modal,Form,Input,Select,message,Spin } from 'ant-design-vue';
 	import { addAcconut,setLimit,userMsg
 		,checkEmail } from '../../../util/api';
   export default {
@@ -114,7 +115,8 @@
     	AInput:Input,
     	AFormItem:Form.Item,
     	ASelect:Select,
-    	ASelectOption:Select.Option
+    	ASelectOption:Select.Option,
+    	ASpin:Spin
     },
     mounted(){
     	this.getUserMsg();
@@ -207,6 +209,10 @@
 	      });
 	    },
     	addAcconut(param){
+    		if(this.loading2){
+    			return false;
+    		}
+    		this.loading2 = true;
     		const self = this;
     		const token = sessionStorage.getItem('token');
     		if(!token){
@@ -226,21 +232,30 @@
     		)
     		.then(function(response){
     			const res = response.data;
-
-    			// 等后台接口调整结构
-    			if(res && res.data && !res.data.needValidation){
-    				self.newAccountId = res.data.newAccountId;
-    				self.showVartoken = true;
-    				return;
+    			if(res && res.data && res.data.accountId){
+    				// 等后台接口调整结构
+	    			if(res && res.data && res.data.needValidation){
+	    				self.newAccountId = res.data.accountId;
+	    				self.showVartoken = true;
+	    				self.loading2 = false;
+	    				return;
+	    			}
+	    			if(res.data){
+	    				self.visible = !self.visible;
+	    				self.name = '',
+	        		self.password = '',
+	    				self.$emit('toggleHandleAccount','');
+	    				self.loading2 = false;
+	    			};
+    			}else{
+    				self.loading2 = false;
+    				message.error('用户不存在', [2])
     			}
-    			if(res.data){
-    				self.visible = !self.visible;
-    				self.name = '',
-        		self.password = '',
-    				self.$emit('toggleHandleAccount','');
-    			};
+    			
+    			
     		})
     		.catch(function (error) {
+    			this.loading2 = false;
           if (error.response.status === 401) {
 		      	self.$router.replace('/');
 			    }else{

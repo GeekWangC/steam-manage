@@ -29,7 +29,7 @@
 					/>
 			</span>
 			<span slot="status" slot-scope="text, record,index">
-				<a-select :default-value="record.status" style="width: 100px" @change="handleChangeStatus($event,record.accountId)">
+				<a-select :default-value="!!record.status ? record.status+'' :'false'" style="width: 100px" @change="handleChangeStatus($event,record.accountId)">
 		      <a-select-option value="true">
 		        已完成
 		      </a-select-option>
@@ -102,6 +102,8 @@
 		getRechargeRecords,getConsumeRecords
 		,refreshAccount,checkEmail
 		,deleteAccount,editAccount
+		,editAccountBackcode,editAccountRecharge
+		,editAccountRechargeStatus,editAccountRechargeHandler
 	} from '../../../util/api';
 	const emptyColumes = (text, row, index) => {
     	return text || '暂空'
@@ -257,7 +259,8 @@
     methods: {
     	handleChangeStatus(value,id){
     		this.status = value;
-    		this.interEdit(id);
+    		// this.interEdit(id);
+    		this.interEditAccountRechargeStatus(id);
 
     		console.log(`selected ${value}`);
     	},
@@ -319,7 +322,14 @@
 
     		// 事件绑定，备用编码，需充值金额，操作人编辑
     		this[type] = e.target.value;
-    		this.interEdit(accountId);
+    		if(type === 'backcode'){
+    			this.interEditAccountBackcode(accountId);
+    		}else if(type === 'recharge'){
+    			this.interEditAccountRecharge(accountId);
+    		}else if(type === 'handler'){
+    			this.interEditAccountRechargeHandler(accountId);
+    		}
+    		// this.interEdit(accountId);
 
     	},
     	interEdit(accountId){
@@ -367,7 +377,166 @@
         });
 	      
     	},
+    	
+    	interEditAccountBackcode(accountId){
+    		
+    		// 接口请求-修改账号备用码
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		const { recharge,handler,backcode,status } = self;//record;
+    		
+    		this.$http.post(
+    			editAccountBackcode,//+'?accountId='+accountId,
+    			JSON.stringify({
+    				accountId
+    				,backcode
+    			}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			self.loading = false;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	// message.error('编辑失败，请重试', [2])
+        	}
+        });
+    	},
+    	interEditAccountRecharge(accountId){
+    		
+    		// 接口请求-修改需充值金额和操作人
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		const { recharge,handler,backcode,status } = self;//record;
+    		
+    		this.$http.post(
+    			editAccountRecharge,//+'?accountId='+accountId,
+    			JSON.stringify({
+    				accountId
+    				,rechargeDemand:recharge
+    			}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			self.loading = false;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	// message.error('编辑失败，请重试', [2])
+        	}
+        });
+    	},
 
+    	
+    	interEditAccountRechargeHandler(accountId){
+    		
+    		// 接口请求-修改需充值金额和操作人
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		const { recharge,handler,backcode,status } = self;//record;
+    		
+    		this.$http.post(
+    			editAccountRechargeHandler,//+'?accountId='+accountId,
+    			JSON.stringify({
+    				accountId
+    				,handler
+    			}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			self.loading = false;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	// message.error('编辑失败，请重试', [2])
+        	}
+        });
+    	},
+    	
+    	interEditAccountRechargeStatus(accountId){
+    		
+    		// 接口请求-修改状态
+				const self = this;
+    		const token = sessionStorage.getItem('token');
+    		if(!token){
+    			this.$router.replace('/');
+    		}
+    		const { recharge,handler,backcode,status } = self;//record;
+    		
+    		this.$http.post(
+    			editAccountRechargeStatus,//+'?accountId='+accountId,
+    			JSON.stringify({
+    				accountId
+    				,rechargeStatus:status
+    			}),
+    			{
+    				headers: { 
+  						'Content-Type': "application/json", 
+  						dataType: "json", 
+  						token,
+  					}
+    			}
+    		)
+    		.then(function(response){
+    			const res = response.data;
+    			const code = res && res.data && res.data.code;
+    			self.loading = false;
+    		})
+    		.catch(function (error) {
+          console.log(error);
+          self.loading = false;
+          if (error.response.status === 401) {
+		      	self.$router.replace('/');
+			    }else{
+          	// message.error('编辑失败，请重试', [2])
+        	}
+        });
+    	},
     	
     	checkEmail(e){
     		e.preventDefault();

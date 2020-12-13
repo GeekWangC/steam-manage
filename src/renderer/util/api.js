@@ -35,6 +35,19 @@ export let deleteAccount = domain + '/api/disable/account'
 // 修改账号
 export let editAccount = domain + '/api/edit/account'
 
+// 修改账号备用码
+export let editAccountBackcode = domain + '/api/edit/backcode';
+
+// 修改需充值金额
+export let editAccountRecharge= domain + '/api/edit/recharge';
+// 修改,操作人
+export let editAccountRechargeHandler= domain + '/api/edit/rechargeHandler';
+
+// 修改需充值状态
+export let editAccountRechargeStatus= domain + '/api/edit/rechargeStatus';
+
+
+
 
 // 管理员查看用户信息列表
 export let getUserList = domain + '/api/get/user/list';
