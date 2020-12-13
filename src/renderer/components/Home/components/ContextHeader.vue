@@ -232,6 +232,13 @@
     		)
     		.then(function(response){
     			const res = response.data;
+    			if(res && res.code === '444'){
+    				self.loading2 = false;
+    				self.name = '';
+        		self.password = '';
+    				message.error('账号已存在', [2])
+    				return;
+    			}
     			if(res && res.data && res.data.accountId){
     				// 等后台接口调整结构
 	    			if(res && res.data && res.data.needValidation){
@@ -242,8 +249,8 @@
 	    			}
 	    			if(res.data){
 	    				self.visible = !self.visible;
-	    				self.name = '',
-	        		self.password = '',
+	    				self.name = '';
+	        		self.password = '';
 	    				self.$emit('toggleHandleAccount','');
 	    				self.loading2 = false;
 	    			};
