@@ -262,7 +262,9 @@
     			
     		})
     		.catch(function (error) {
-    			this.loading2 = false;
+    			self.loading2 = false;
+    			self.name = '';
+      		self.password = '';
           if (error.response.status === 401) {
 		      	self.$router.replace('/');
 			    }else{
