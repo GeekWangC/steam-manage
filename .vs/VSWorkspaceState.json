@@ -1,15 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\dist",
-    "\\dist\\electron",
+    "\\.electron-vue",
     "\\src",
     "\\src\\renderer",
     "\\src\\renderer\\components",
-    "\\src\\renderer\\components\\Home",
-    "\\src\\renderer\\components\\Login",
-    "\\src\\renderer\\util"
+    "\\src\\renderer\\components\\LandingPage",
+    "\\src\\renderer\\util",
+    "\\static"
   ],
-  "SelectedNode": "\\src\\renderer\\components\\Home\\image",
+  "SelectedNode": "\\src\\renderer\\util\\api.js",
   "PreviewInSolutionExplorer": false
 }
