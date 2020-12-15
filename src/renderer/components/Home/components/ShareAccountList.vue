@@ -190,8 +190,8 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.data = res.data.data;
     			self.loading2 = false;
+          self.visible = false;
     		})
     		.catch(function (error) {
           self.loading2 = false;

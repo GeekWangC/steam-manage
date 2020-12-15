@@ -572,7 +572,6 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.data = res.data.data;
     			self.loading2 = false;
           self.visible2 = false;
     		})
