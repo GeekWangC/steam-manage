@@ -719,7 +719,7 @@
     			// 5 功能调用成功
     			self.dispath = false;
     			self.loading = false;
-    			if(code !== '4'){
+    			if(code != '5'){
     				self.visible2 = true;	
     			}
     			
