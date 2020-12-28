@@ -69,6 +69,11 @@
 		        v-decorator="['walletCode', { rules: [{ required: true, message: '请输入礼品卡代码' }] }]"
 		      />
 		    </a-form-item>
+        <a-form-item v-if='rechargeNeedCode' label="令牌验证">
+          <a-input
+            v-decorator="['vartoken', { rules: [{ required: true, message: '请输入令牌验证' }] }]"
+          />
+        </a-form-item>
 		    <a-button type="primary" html-type="submit">
 	        提交
 	      </a-button>
@@ -238,6 +243,9 @@
 				handler:'',// 操作人
 				backcode:'',// 备用吗
 				status:'',// 状态
+
+        rechargeNeedCode:false,// 充值需要令牌
+        vartoken:'',// 充值的验证码
       }
     },
     components: {
@@ -361,10 +369,13 @@
     		.then(function(response){
     			const res = response.data;
     			const code = res && res.data && res.data.code;
+          const message = res && res.data && res.data.message;
     			self.loading = false;
-    			if(code !== '4'){
+    			if(code == '3'){
     				self.visible2 = true;	
-    			}
+    			}else{
+            message.error(message ||'系统异常，请重试',[2])
+          }
     		})
     		.catch(function (error) {
           console.log(error);
@@ -548,7 +559,7 @@
 	        }
 	      });
     	},
-    	interCheckEmail(params){
+    	interCheckEmail(params,type){
 
 				const self = this;
 				if(self.loading2){
@@ -559,6 +570,50 @@
     		if(!token){
     			this.$router.replace('/');
     		}
+        
+        if(type==='recharge'){
+          const rechargeParams = {
+            accountId:params.accountId,
+            walletCode:params.walletCode
+          }
+          const emailParams = {
+            accountId:params.accountId,
+            emailCode:params.emailCode
+          }
+          this.$http.post(
+            checkEmail,
+            JSON.stringify(emailParams),
+            {
+              headers: { 
+                'Content-Type': "application/json", 
+                dataType: "json", 
+                token,
+              }
+            }
+          )
+          .then(function(response){
+            const res = response.data;
+            self.loading2 = false;
+            self.dispath = false;
+            if(res){
+              self.interRecharge(rechargeParams);
+
+            }else{
+              self.vartoken = '';
+              message.error('验证码错误，请重新输入', [2])
+            }
+          })
+          .catch(function (error) {
+            self.loading2 = false;
+            self.dispath = false;
+            if (error.response.status === 401) {
+              self.$router.replace('/');
+            }else{
+              message.error('网络异常，请稍后再试', [2])
+            }
+          });
+          return;
+        }
     		this.$http.post(
     			checkEmail,
     			JSON.stringify(params),
@@ -637,7 +692,12 @@
 	      this.rechargeForm.validateFields((err, values) => {
 	        if (!err) {
 	        	values.accountId = self.accountId;
-	          this.interRecharge(values);
+            if(values.vartoken && self.rechargeNeedCode){
+              values.emailCode = values.vartoken;
+              this.interCheckEmail(values,'recharge')
+            }else{
+              this.interRecharge(values);  
+            }
 	        }
 	      });
     	},
@@ -663,8 +723,24 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.dispath = false;
-    			self.visible = false;
+          const code = res && res.code;
+          const messagess = res && res.message;
+          const data = res && res.data;
+          // 0 未知错误
+          // 1 多次登录失败，禁止登陆
+          // 2 用户名或密码错误
+          // 3 需要邮箱验证码、手机验证码或图形验证码
+          // 4 功能调用失败
+          // 5 功能调用成功
+          self.dispath = false;
+          if(code == '3'){
+            self.rechargeNeedCode = true; 
+          }else if(code !== '5'){
+            message.error(messagess ||'充值失败，请重试',[2])
+          }else if(data){
+            message.info('充值成功',[2])
+            self.visible = false;
+          }
     		})
     		.catch(function (error) {
           console.log(error);
@@ -711,6 +787,7 @@
     		.then(function(response){
     			const res = response.data;
     			const code = res && res.data && res.data.code;
+          const messagess = res && res.data && res.data.msg;
     			// 0 未知错误
     			// 1 多次登录失败，禁止登陆
     			// 2 用户名或密码错误
@@ -719,9 +796,11 @@
     			// 5 功能调用成功
     			self.dispath = false;
     			self.loading = false;
-    			if(code != '5'){
+    			if(code == '3'){
     				self.visible2 = true;	
-    			}
+    			}else if(code != '5'){
+            message.error(messagess ||'刷新失败，请重试',[2])
+          }
     			
     		})
     		.catch(function (error) {

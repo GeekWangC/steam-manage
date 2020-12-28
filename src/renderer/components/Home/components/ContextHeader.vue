@@ -237,7 +237,7 @@
     				self.name = '';
         		self.password = '';
     				message.error('账号已存在', [2])
-    				return;
+    				return; 
     			}
     			if(res && res.data && res.data.accountId){
     				// 等后台接口调整结构
