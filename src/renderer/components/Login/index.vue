@@ -1,6 +1,6 @@
 <template>
   <main class="login-contian">
-    <button v-if="1===2" @click="handleCreate">悄悄注册</button>
+    <button v-if="1 === 2" @click="handleCreate">悄悄注册</button>
     <form class="form">
         <div class="form__cover"></div>
         <div class="form__loader">
@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="form__content">
-            <h1>Authorization</h1>
+            <h1>{{type == 1 ? 'sign in to steam' : 'sign up to steam'}}</h1>
             <div class="styled-input">
                 <input id="username" type="text" class="styled-input__input" name="nickname" v-model="userName">
                 <div class="styled-input__placeholder">
@@ -25,16 +25,37 @@
                 </div>
                 <div class="styled-input__circle"></div>
             </div>
-            <button type="button" id="login" class="styled-button" @click="handleLogin">
+            <div v-show='type==2' class="styled-input">
+              <input id="confirmPassword" type="text" class="styled-input__input" v-model="confirmPassword">
+              <div class="styled-input__placeholder">
+                <span class="styled-input__placeholder-text">confirmPassword</span>
+              </div>
+              <div class="styled-input__circle"></div>
+            </div>
+            <button v-show='type != 2' type="button" id="login" class="styled-button" @click="handleLogin">
                 <span class="styled-button__real-text-holder">
-                    <span class="styled-button__real-text">Submit</span>
+                    <span class="styled-button__real-text">Sign in(登陆)</span>
                     <span class="styled-button__moving-block face">
                         <span class="styled-button__text-holder">
-                            <span class="styled-button__text">Submit</span>
+                            <span class="styled-button__text">Sign in(登陆)</span>
                         </span>
                     </span><span class="styled-button__moving-block back">
                         <span class="styled-button__text-holder">
-                            <span class="styled-button__text">Submit</span>
+                            <span class="styled-button__text">Sign in(登陆)</span>
+                        </span>
+                    </span>
+                </span>
+            </button>
+            <button type="button" id="login" class="styled-button" @click="handleCreate">
+                <span class="styled-button__real-text-holder">
+                    <span class="styled-button__real-text">Sign up(注册)</span>
+                    <span class="styled-button__moving-block face">
+                        <span class="styled-button__text-holder">
+                            <span class="styled-button__text">Sign up(注册)</span>
+                        </span>
+                    </span><span class="styled-button__moving-block back">
+                        <span class="styled-button__text-holder">
+                            <span class="styled-button__text">Sign up(注册)</span>
                         </span>
                     </span>
                 </span>
@@ -46,53 +67,69 @@
 </template>
 
 <script>
+  import { Table,Button,Modal,Form,Input,Pagination,message
+    ,Spin,Popconfirm,Select } from 'ant-design-vue';
     import { loginUser, createUser } from '../../util/api';
     export default {
         name: 'login-page',
         data() {
             return {
-                userName: '',
-                password: ''
+              userName: '',
+              password: '',
+              confirmPassword:'',
+              type:'1',//1 登陆 2注册
+              title:'     sign in steam     ',
             }
         },
         components: {},
         methods: {
-            handleLogin(e) {
-                const self = this;
+          handleLogin(e) {
+              const self = this;
+              this.$http.post(
+                  loginUser,
+                  JSON.stringify({
+                      userName: this.userName,
+                      password: this.password
+                  }),
+                  {
+                      headers: { 'Content-Type': "application/json", dataType: "json", }
+                  }
+
+              )
+              .then(function (response) {
+                  const res = response.data;
+                  sessionStorage.setItem('token', res.data);
+                  self.$router.push('/home');
+                  //window.location.href = './home.html'
+              })
+              .catch(function (error) {
+                  console.log(error);
+              });
+          },
+          handleCreate() {
+            const self = this;
+            if(self.type == 1){
+              self.type = 2;  
+            }else{
+              if(self.password.length < 8){
+                message.error('密码长度不匹配，请重新输入', [2])
+              }else if(self.password !== self.confirmPassword){
+                message.error('密码与确认密码不匹配，请重新输入', [2])
+              }else{
                 this.$http.post(
-                    loginUser,
-                    JSON.stringify({
-                        userName: this.userName,
-                        password: this.password
-                    }),
-                    {
-                        headers: { 'Content-Type': "application/json", dataType: "json", }
-                    }
+                  createUser,
+                  JSON.stringify({
+                      userName: this.userName,
+                      password: this.password
+                  }),
+                  {
+                      headers: { 'Content-Type': "application/json", dataType: "json", }
+                  }
 
                 )
                 .then(function (response) {
-                    const res = response.data;
-                    sessionStorage.setItem('token', res.data);
-                    self.$router.push('/home');
-                    //window.location.href = './home.html'
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            },
-            handleCreate() {
-                this.$http.post(
-                    createUser,
-                    JSON.stringify({
-                        userName: this.userName,
-                        password: this.password
-                    }),
-                    {
-                        headers: { 'Content-Type': "application/json", dataType: "json", }
-                    }
-
-                )
-                .then(function (response) {
+                  message.info('注册成功，请登陆', [2]);
+                  self.type = 1;
                     //sessionStorage.setItem('token', response.data);
                     //this.$router.push('home');
                     //window.location.href = './home.html'
@@ -100,8 +137,13 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-                
+              }
             }
+            
+            return;
+            
+              
+          }
         },
         mounted() {
             // this.handleCreate();
