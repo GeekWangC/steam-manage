@@ -12,10 +12,11 @@
         :key="handleAccount" v-if="menu == 'account'"></account-list>
       <user-list 
         :key="handleAccount"
+        @toggleMenu="toggleMenu" 
         v-if="menu == 'user'"></user-list>
       <share-account-list v-if="menu == 'share'"></share-account-list>
-      <recharge-records :accountId='accountId' v-if="menu == 'rechargeRecords'"></recharge-records>
-      <consume-records :accountId='accountId' v-if="menu == 'consumeRecords'"></consume-records>
+      <recharge-records :accountId='accountId' v-if="menu == 'rechargeRecords' || menu =='userRechargeRecords'"></recharge-records>
+      <consume-records :accountId='accountId' v-if="menu == 'consumeRecords' || menu=='userConsumeRecords'"></consume-records>
     </div>
   </div>
 </template>
@@ -43,6 +44,8 @@
               'share':'主界面/发送权限',
               'consumeRecords':'主界面/消费记录',
               'rechargeRecords':'主界面/充值记录',
+              'userConsumeRecords':'接收账号/消费记录',
+              'userRechargeRecords':'接收账号/充值记录',
             },
             accountId:'',
             handleAccount:false,
