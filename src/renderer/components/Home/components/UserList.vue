@@ -247,6 +247,8 @@
 	    },
 	    showDeleteConfirm(e,accountId) {
 
+        alert('等接口，暂时没有接口');
+        return;
 	    	// 事件绑定，删除
 	    	this.loading = true;
 	    	this.interDelete(accountId)
@@ -703,7 +705,8 @@
           if(code == '3'){
             self.rechargeNeedCode = true; 
           }else if(code !== '5'){
-            message.error(messagess ||'充值失败，请重试',[2])
+            self.commonModelTip('',messagess ||'充值失败，请重试')
+            // message.error(messagess ||'充值失败，请重试',[2])
           }else if(data){
             message.info('充值成功',[2])
             self.visible = false;
@@ -720,7 +723,22 @@
         });
 	      
     	},
+
+      commonModelTip(title,content){
+
+        // 公共弹窗提示信息
+        const model = Modal.info({
+          title,
+          content,
+          closable:true,
+        });
+      },
+
     	handleRefreshAccount(e,accountId){
+
+        alert('等一下接口')
+        return;
+
     		if(this.dispath){
     			return false;
     		}

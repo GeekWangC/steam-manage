@@ -736,6 +736,7 @@
           if(code == '3'){
             self.rechargeNeedCode = true; 
           }else if(code !== '5'){
+            self.commonModelTip('',messagess ||'充值失败，请重试')
             message.error(messagess ||'充值失败，请重试',[2])
           }else if(data){
             message.info('充值成功',[2])
@@ -753,6 +754,17 @@
         });
 	      
     	},
+
+      commonModelTip(title,content){
+
+        // 公共弹窗提示信息
+        const model = Modal.info({
+          title,
+          content,
+          closable:true,
+        });
+      },
+
     	handleRefreshAccount(e,accountId){
     		if(this.dispath){
     			return false;
