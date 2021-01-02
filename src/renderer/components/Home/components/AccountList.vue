@@ -733,14 +733,14 @@
           // 4 功能调用失败
           // 5 功能调用成功
           self.dispath = false;
-          if(code == '3'){
+          if(data){
+            message.info('充值成功',[2])
+            self.visible = false;
+          }else if(code == '3'){
             self.rechargeNeedCode = true; 
           }else if(code !== '5'){
             self.commonModelTip('',messagess ||'充值失败，请重试')
             message.error(messagess ||'充值失败，请重试',[2])
-          }else if(data){
-            message.info('充值成功',[2])
-            self.visible = false;
           }
     		})
     		.catch(function (error) {
