@@ -247,8 +247,8 @@
 	    },
 	    showDeleteConfirm(e,accountId) {
 
-        alert('等接口，暂时没有接口');
-        return;
+        // alert('等接口，暂时没有接口');
+        // return;
 	    	// 事件绑定，删除
 	    	this.loading = true;
 	    	this.interDelete(accountId)
@@ -736,8 +736,8 @@
 
     	handleRefreshAccount(e,accountId){
 
-        alert('等一下接口')
-        return;
+        // alert('等一下接口')
+        // return;
 
     		if(this.dispath){
     			return false;
