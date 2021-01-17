@@ -28,6 +28,10 @@
 					@change='handleEditAccount($event,record.accountId,"backcode")'
 					/>
 			</span>
+      <!-- 备注 -->
+      <span slot="remark" slot-scope="text, record,index">
+        <a-input :value='record.remark'/>
+      </span>
 			<span slot="status" slot-scope="text, record,index">
 				<a-select :default-value="!!record.status ? record.status+'' :'false'" style="width: 100px" @change="handleChangeStatus($event,record.accountId)">
 		      <a-select-option value="true">
@@ -124,7 +128,7 @@
 	    title: '备注',
 	    dataIndex: 'remark',
 	    key: 'remark',
-	    customRender: emptyColumes,
+      scopedSlots: { customRender: 'remark' },
 	  },
 	  {
 	    title: 'steam账号',
