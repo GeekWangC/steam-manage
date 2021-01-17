@@ -33,7 +33,7 @@
 
 		</div>
 		<div>
-			<a-modal v-model="visible" title="录入账号" :footer="null">
+			<a-modal v-model="visible" title="录入账号" :footer="null" @cancel="afterCloseAccount" :destroyOnClose='destroyOnClose'>
 	      <a-form :form="addConuntForm" @submit="handleSubmit">
 	      	<a-form-item label="账号">
 			      <a-input
@@ -86,6 +86,7 @@
     props: ['title'],
     data() {
       return {
+        destroyOnClose:true,
       	admin:false,
         visible:false,
         visible2:false,
@@ -148,6 +149,7 @@
     			// self.data = res.data.data;
     			self.visible = !self.visible;
     			self.loading2 = false;
+          self.showVartoken = false;
   				self.name = '',
       		self.password = '',
       		self.vartoken = '',
@@ -208,6 +210,12 @@
 	        }
 	      });
 	    },
+      afterCloseAccount(){
+        const self = this;
+        self.showVartoken = false;
+        self.name = '';
+        self.password = '';
+      },
     	addAcconut(param){
     		if(this.loading2){
     			return false;
@@ -251,8 +259,10 @@
 	    				self.visible = !self.visible;
 	    				self.name = '';
 	        		self.password = '';
+              self.showVartoken = false;
 	    				self.$emit('toggleHandleAccount','');
 	    				self.loading2 = false;
+
 	    			};
     			}else{
     				self.loading2 = false;

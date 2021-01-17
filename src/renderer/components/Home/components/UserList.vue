@@ -771,8 +771,8 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			const code = res && res.data && res.data.code;
-          const messagess = res && res.data && res.data.msg;
+    			const code = res && res.code;
+          const messagess = res && res.msg;
     			// 0 未知错误
     			// 1 多次登录失败，禁止登陆
     			// 2 用户名或密码错误
@@ -786,6 +786,8 @@
     			}else if(code != '5'){
             message.error(messagess ||'刷新失败，请重试',[2])
           }
+
+
     			
     		})
     		.catch(function (error) {

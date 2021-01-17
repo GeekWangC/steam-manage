@@ -631,8 +631,27 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			self.loading2 = false;
-          self.visible2 = false;
+          const code = res && res.code;
+          const messagess = res && res.message;
+          if(res){
+            self.loading2 = false;
+            self.visible2 = false;
+          }else{
+            message.error(messagess ||'验证码错误，请重试',[2])
+          }
+    			
+          
+          // 0 未知错误
+          // 1 多次登录失败，禁止登陆
+          // 2 用户名或密码错误
+          // 3 需要邮箱验证码、手机验证码或图形验证码
+          // 4 功能调用失败
+          // 5 功能调用成功
+          // if(code == '3'){
+          //   self.visible2 = true; 
+          // }else if(code != '5'){
+          //   message.error(messagess ||'验证码错误，请重试',[2])
+          // }
     		})
     		.catch(function (error) {
           self.loading2 = false;
@@ -802,8 +821,8 @@
     		)
     		.then(function(response){
     			const res = response.data;
-    			const code = res && res.data && res.data.code;
-          const messagess = res && res.data && res.data.msg;
+    			const code = res && res.code;
+          const messagess = res && res.message;
     			// 0 未知错误
     			// 1 多次登录失败，禁止登陆
     			// 2 用户名或密码错误
@@ -812,6 +831,7 @@
     			// 5 功能调用成功
     			self.dispath = false;
     			self.loading = false;
+          self.getRelations();
     			if(code == '3'){
     				self.visible2 = true;	
     			}else if(code != '5'){
