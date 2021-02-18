@@ -23,7 +23,8 @@
 					/>
 			</span>
 			<span slot="backcode" slot-scope="text, record,index">
-				<a-input :value='record.backcode'
+				<a-textarea :value='record.backcode'
+          auto-size
 					@pressEnter='handleEditAccount($event,record.accountId,"backcode")'
 					@change='handleEditAccount($event,record.accountId,"backcode")'
 					/>
@@ -106,7 +107,7 @@
 
 <script>
 	import { Table,Button,Modal,Form,Input,Pagination,message
-		,Spin,Popconfirm,Select } from 'ant-design-vue';
+		,Spin,Popconfirm,Select,TextArea } from 'ant-design-vue';
 	import { getRelations,recharge,
 		getRechargeRecords,getConsumeRecords
 		,refreshAccount,checkEmail
@@ -156,6 +157,7 @@
 	  {
 	    title: '需充值金额',
 	    key: 'recharge',
+      width:200,
 	    scopedSlots: { customRender: 'recharge' },
 	  },
 	  {
@@ -258,6 +260,7 @@
     	AModal:Modal,
     	AForm:Form,
     	AInput:Input,
+      ATextarea:Input.TextArea,
     	AFormItem:Form.Item,
     	APagination:Pagination,
     	ASpin:Spin,
